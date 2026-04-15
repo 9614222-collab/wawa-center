@@ -196,29 +196,46 @@ function Confetti({show}){
   );
 }
 
-function spk(text,rate=0.85){
-  const u=new SpeechSynthesisUtterance(text);
-  u.lang="en-US";u.rate=rate;u.pitch=1.1;
+function getBestVoice(){
   const vs=window.speechSynthesis.getVoices();
-  const v=vs.find(x=>x.lang==="en-US"&&x.name.toLowerCase().includes("female"))||vs.find(x=>x.lang==="en-US")||vs.find(x=>x.lang.startsWith("en"));
-  if(v)u.voice=v;
+  return vs.find(x=>x.lang==="en-US"&&x.name.toLowerCase().includes("female"))
+    ||vs.find(x=>x.lang==="en-US")
+    ||vs.find(x=>x.lang==="en_US")
+    ||vs.find(x=>x.lang.startsWith("en-"))
+    ||vs.find(x=>x.lang.startsWith("en"))
+    ||null;
+}
+function spk(text,rate=0.85){
   window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(u);
+  const doSpeak=()=>{
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang="en-US";u.rate=rate;u.pitch=1.1;
+    const v=getBestVoice();
+    if(v)u.voice=v;
+    window.speechSynthesis.speak(u);
+  };
+  const vs=window.speechSynthesis.getVoices();
+  if(vs.length>0){doSpeak();}
+  else{window.speechSynthesis.onvoiceschanged=()=>{doSpeak();window.speechSynthesis.onvoiceschanged=null;};}
 }
 function spkAll(words){
   window.speechSynthesis.cancel();
+  const doSpeak=()=>{
+    const v=getBestVoice();
+    let i=0;
+    function next(){
+      if(i>=words.length)return;
+      const u=new SpeechSynthesisUtterance(words[i++].w);
+      u.lang="en-US";u.rate=0.8;u.pitch=1.1;
+      if(v)u.voice=v;
+      u.onend=()=>setTimeout(next,600);
+      window.speechSynthesis.speak(u);
+    }
+    next();
+  };
   const vs=window.speechSynthesis.getVoices();
-  const v=vs.find(x=>x.lang==="en-US"&&x.name.toLowerCase().includes("female"))||vs.find(x=>x.lang==="en-US")||vs.find(x=>x.lang.startsWith("en"));
-  let i=0;
-  function next(){
-    if(i>=words.length)return;
-    const u=new SpeechSynthesisUtterance(words[i++].w);
-    u.lang="en-US";u.rate=0.8;u.pitch=1.1;
-    if(v)u.voice=v;
-    u.onend=()=>setTimeout(next,600);
-    window.speechSynthesis.speak(u);
-  }
-  next();
+  if(vs.length>0){doSpeak();}
+  else{window.speechSynthesis.onvoiceschanged=()=>{doSpeak();window.speechSynthesis.onvoiceschanged=null;};}
 }
 
 function App(){
@@ -510,9 +527,6 @@ function App(){
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
-</script>
-</body>
-</html>yId("root")).render(<App/>);
 </script>
 </body>
 </html>
