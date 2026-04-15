@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>와와학습코칭센터 파닉스 홈트레이닝</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#faf7f5;min-height:100vh}
+  input:focus{outline:none;border-color:#D4622A !important}
+  audio{width:100%}
+  @keyframes fall0{to{transform:translateY(110vh) rotate(360deg);opacity:0}}
+  @keyframes fall1{to{transform:translateY(110vh) rotate(-720deg);opacity:0}}
+  @keyframes fall2{to{transform:translateY(110vh) rotate(180deg) translateX(80px);opacity:0}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
+  button{font-family:inherit;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useRef} = React;
+const C = {primary:"#D4622A",light:"#f5e8e0",mid:"#e8a07a"};
+
+const STAGES = [
+  {id:1,name:"Stage 1",label:"알파벳 소리",color:"#5C6BC0",bg:"#EDE7F6"},
+  {id:2,name:"Stage 2",label:"단모음 CVC",color:"#2E7D32",bg:"#E8F5E9"},
+  {id:3,name:"Stage 3",label:"장모음 Silent E",color:"#1565C0",bg:"#E3F2FD"},
+  {id:4,name:"Stage 4",label:"이중모음",color:"#AD1457",bg:"#FCE4EC"},
+  {id:5,name:"Stage 5",label:"자음 블렌드",color:"#E65100",bg:"#FFF3E0"},
+  {id:6,name:"Stage 6",label:"다이그래프",color:"#00695C",bg:"#E0F2F1"},
+  {id:7,name:"Stage 7",label:"R통제모음·복합패턴",color:"#4527A0",bg:"#EDE7F6"},
+];
+
+const TASKS = [
+  {id:1, stage:1,title:"Alphabet Sounds A–E",   words:["apple","ant","egg","elf","arm"],          tip:"각 알파벳의 '짧은' 소리에 집중하세요."},
+  {id:2, stage:1,title:"Alphabet Sounds F–J",   words:["fan","fog","gun","hat","jam"],             tip:"입 모양을 거울로 보면서 따라해 보세요."},
+  {id:3, stage:1,title:"Alphabet Sounds K–O",   words:["kite","leg","map","net","odd"],            tip:"소리를 길게 늘이지 말고 짧게 끊어요."},
+  {id:4, stage:1,title:"Alphabet Sounds P–T",   words:["pig","quit","run","sit","top"],            tip:"p·b·t·d 헷갈리지 않게 천천히!"},
+  {id:5, stage:1,title:"Alphabet Sounds U–Z",   words:["up","van","win","fox","yes","zip"],        tip:"x는 'ks' 소리임을 기억하세요."},
+  {id:6, stage:2,title:"Short A – CVC Words",   words:["cat","bat","hat","man","ran","pan"],       tip:"가운데 'a'를 짧고 강하게 발음해요."},
+  {id:7, stage:2,title:"Short E – CVC Words",   words:["bed","red","pen","hen","ten","wet"],       tip:"'e'는 입을 옆으로 살짝 당겨요."},
+  {id:8, stage:2,title:"Short I – CVC Words",   words:["sit","bit","him","fin","win","lip"],       tip:"'i'는 짧고 빠르게 '이'!"},
+  {id:9, stage:2,title:"Short O – CVC Words",   words:["hot","dot","log","hop","top","cod"],       tip:"'o'는 입을 동그랗게 벌려요."},
+  {id:10,stage:2,title:"Short U – CVC Words",   words:["cup","bug","run","sun","mud","tub"],       tip:"'u'는 한국어 '어'에 가까워요."},
+  {id:11,stage:3,title:"Long A – Silent E",     words:["cake","lake","name","game","tape","came"], tip:"끝 e는 소리 안 나고 앞 모음을 길게 만들어요."},
+  {id:12,stage:3,title:"Long E – EE / EA",      words:["feet","keep","seed","meat","read","team"], tip:"'ee'와 'ea' 모두 긴 E 소리예요."},
+  {id:13,stage:3,title:"Long I – Silent E",     words:["kite","mine","ride","hide","time","pipe"], tip:"i_e 패턴: 사이 자음이 있어요."},
+  {id:14,stage:3,title:"Long O – OA / OE",      words:["home","bone","boat","coat","toe","hoe"],   tip:"'oa'는 두 글자가 하나의 소리예요."},
+  {id:15,stage:3,title:"Long U – Silent E",     words:["cube","tune","mule","dune","cute","tube"], tip:"'u_e'는 '유' 또는 '우' 두 가지로 날 수 있어요."},
+  {id:16,stage:4,title:"Vowel Teams: AI / AY",  words:["rain","tail","main","day","play","stay"],  tip:"'ai'는 단어 중간, 'ay'는 단어 끝에 와요."},
+  {id:17,stage:4,title:"Vowel Teams: OI / OY",  words:["coin","soil","boy","toy","join","oil"],    tip:"'oi/oy'는 '오이' 느낌으로 이중발음!"},
+  {id:18,stage:4,title:"Vowel Teams: OO",       words:["moon","food","book","look","cool","foot"], tip:"'oo'는 길게(moon)와 짧게(book) 두 가지."},
+  {id:19,stage:4,title:"Vowel Teams: OU / OW",  words:["out","cloud","cow","down","town","loud"],  tip:"'ou/ow'는 '아우' 이중모음이에요."},
+  {id:20,stage:4,title:"Vowel Teams: EW / UE",  words:["new","dew","blue","clue","true","flew"],   tip:"'ew/ue'는 긴 U 소리예요."},
+  {id:21,stage:5,title:"Blends: BL, CL, FL",    words:["blue","clap","flag","black","cloud","flat"],tip:"두 자음을 붙여서 빠르게 발음해요."},
+  {id:22,stage:5,title:"Blends: ST, SP, SN",    words:["stop","spin","snap","star","spell","snack"],tip:"s 뒤 자음을 또렷이 살려요."},
+  {id:23,stage:5,title:"Blends: TR, DR, GR",    words:["tree","drop","grip","tray","draw","grass"], tip:"r 앞 자음을 약하게 흘려요."},
+  {id:24,stage:5,title:"Blends: SK, SC, SL",    words:["skip","scar","slim","skill","scam","slide"],tip:"끝소리도 정확하게 끊어요."},
+  {id:25,stage:5,title:"Final Blends: –ND, –NT",words:["sand","bend","mint","hunt","pond","lend"],  tip:"끝 자음 두 개를 모두 발음해요."},
+  {id:26,stage:6,title:"Digraph: SH",           words:["shop","ship","fish","shoe","dash","wish"],  tip:"'sh'는 '쉬~' 입술을 앞으로 내밀어요."},
+  {id:27,stage:6,title:"Digraph: CH",           words:["chip","chat","lunch","beach","chop","rich"], tip:"'ch'는 '취~' 혀를 입천장에 붙였다 떼요."},
+  {id:28,stage:6,title:"Digraph: TH (voiced)",  words:["that","this","them","then","those","bathe"], tip:"유성 th: 혀를 이 사이에 넣고 진동시켜요."},
+  {id:29,stage:6,title:"Digraph: TH (voiceless)",words:["thin","three","think","thumb","bath","both"],tip:"무성 th: 혀를 이 사이에 넣고 바람만 내요."},
+  {id:30,stage:6,title:"Digraph: WH / PH",      words:["when","where","whale","phone","photo","graph"],tip:"'wh'≈w 소리, 'ph'=f 소리예요."},
+  {id:31,stage:7,title:"R-Controlled: AR",      words:["car","star","barn","farm","hard","park"],   tip:"'ar'은 '아~r' 혀를 뒤로 말아요."},
+  {id:32,stage:7,title:"R-Controlled: ER/IR/UR",words:["her","bird","turn","burn","fur","sir"],     tip:"세 가지 모두 같은 소리예요."},
+  {id:33,stage:7,title:"R-Controlled: OR",      words:["for","born","corn","port","storm","short"], tip:"'or'은 '오~r' 느낌이에요."},
+  {id:34,stage:7,title:"Soft C & G",            words:["city","cent","page","gem","race","age"],    tip:"e·i·y 앞에서 c→s, g→j 소리로 바뀌어요."},
+  {id:35,stage:7,title:"Silent Letters: KN, WR, GN",words:["kneel","write","gnome","knock","wrap","sign"],tip:"첫 자음이 묵음인 단어들이에요."},
+];
+
+function Logo(){
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:14,padding:"16px 24px",background:C.primary,borderRadius:"0 0 20px 20px",marginBottom:20}}>
+      <div style={{background:"white",borderRadius:10,padding:"5px 10px",display:"flex",flexDirection:"column",alignItems:"center"}}>
+        <div style={{fontSize:20,fontWeight:700,color:C.primary,letterSpacing:2,lineHeight:1}}>WAWA</div>
+        <div style={{fontSize:7,color:C.primary,letterSpacing:1,marginTop:2}}>와와학습코칭센터</div>
+        <div style={{fontSize:"5.5px",color:"#888",letterSpacing:0.5}}>COACHING CENTER</div>
+      </div>
+      <div>
+        <div style={{color:"white",fontSize:16,fontWeight:600}}>파닉스 홈트레이닝</div>
+        <div style={{color:"rgba(255,255,255,0.8)",fontSize:12,marginTop:2}}>매일 조금씩, 영어 소리를 내 것으로!</div>
+      </div>
+    </div>
+  );
+}
+
+function Confetti({show}){
+  if(!show) return null;
+  const cols=["#D4622A","#f5a623","#4CAF50","#2196F3","#9C27B0","#FF5722"];
+  return (
+    <div style={{position:"fixed",top:0,left:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:9999}}>
+      {Array.from({length:32},(_,i)=>(
+        <div key={i} style={{position:"absolute",left:`${Math.random()*100}%`,top:"-10px",width:8,height:8,
+          borderRadius:Math.random()>.5?"50%":2,background:cols[i%cols.length],
+          animation:`fall${i%3} ${1.5+Math.random()}s ease-in forwards`,
+          animationDelay:`${Math.random()*0.5}s`}}/>
+      ))}
+    </div>
+  );
+}
+
+function spk(text,rate=0.85){
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang="en-US";u.rate=rate;u.pitch=1.1;
+  const vs=window.speechSynthesis.getVoices();
+  const v=vs.find(x=>x.lang==="en-US"&&x.name.toLowerCase().includes("female"))||vs.find(x=>x.lang==="en-US")||vs.find(x=>x.lang.startsWith("en"));
+  if(v)u.voice=v;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+
+function spkAll(words){
+  window.speechSynthesis.cancel();
+  const vs=window.speechSynthesis.getVoices();
+  const v=vs.find(x=>x.lang==="en-US"&&x.name.toLowerCase().includes("female"))||vs.find(x=>x.lang==="en-US")||vs.find(x=>x.lang.startsWith("en"));
+  let i=0;
+  function next(){
+    if(i>=words.length)return;
+    const u=new SpeechSynthesisUtterance(words[i++]);
+    u.lang="en-US";u.rate=0.8;u.pitch=1.1;
+    if(v)u.voice=v;
+    u.onend=()=>setTimeout(next,600);
+    window.speechSynthesis.speak(u);
+  }
+  next();
+}
+
+function App(){
+  const [screen,setScreen]=useState("login");
+  const [name,setName]=useState("");
+  const [student,setStudent]=useState(null);
+  const [done,setDone]=useState(()=>{try{return JSON.parse(localStorage.getItem("wawa_done")||"{}")}catch{return{}}});
+  const [selTask,setSelTask]=useState(null);
+  const [selStage,setSelStage]=useState(null);
+  const [recording,setRecording]=useState(false);
+  const [audioURLs,setAudioURLs]=useState({});
+  const [uploaded,setUploaded]=useState({});
+  const [congrats,setCongrats]=useState(false);
+  const [confetti,setConfetti]=useState(false);
+  const [playWord,setPlayWord]=useState(null);
+  const mediaRef=useRef(null);
+  const chunksRef=useRef([]);
+  const fileRef=useRef(null);
+
+  function saveDone(d){setDone(d);localStorage.setItem("wawa_done",JSON.stringify(d));}
+  function isDone(tid){return !!done[`${student}_${tid}`];}
+
+  function login(){
+    const n=name.trim();if(!n)return;
+    setStudent(n);setScreen("stages");
+  }
+
+  async function startRec(){
+    try{
+      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+      const mr=new MediaRecorder(stream);
+      mediaRef.current=mr;chunksRef.current=[];
+      mr.ondataavailable=e=>chunksRef.current.push(e.data);
+      mr.onstop=()=>{
+        const blob=new Blob(chunksRef.current,{type:"audio/webm"});
+        setAudioURLs(p=>({...p,[selTask.id]:URL.createObjectURL(blob)}));
+        stream.getTracks().forEach(t=>t.stop());
+      };
+      mr.start();setRecording(true);
+    }catch{alert("마이크 권한을 허용해 주세요.");}
+  }
+  function stopRec(){mediaRef.current?.stop();setRecording(false);}
+
+  function handleFile(e){
+    const f=e.target.files[0];if(!f)return;
+    setAudioURLs(p=>({...p,[selTask.id]:URL.createObjectURL(f)}));
+    setUploaded(p=>({...p,[selTask.id]:f.name}));
+  }
+
+  function submit(){
+    const nd={...done,[`${student}_${selTask.id}`]:true};
+    saveDone(nd);setCongrats(true);setConfetti(true);
+    setTimeout(()=>setConfetti(false),3000);
+  }
+
+  const stDone=(sid)=>TASKS.filter(t=>t.stage===sid&&isDone(t.id)).length;
+  const stTot=(sid)=>TASKS.filter(t=>t.stage===sid).length;
+  const totalDone=TASKS.filter(t=>isDone(t.id)).length;
+  const hasAudio=selTask&&audioURLs[selTask.id];
+
+  // ── LOGIN ──
+  if(screen==="login") return (
+    <div style={{minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:24}}>
+      <Logo/>
+      <div style={{background:"white",borderRadius:20,padding:32,width:"100%",maxWidth:360,boxShadow:"0 4px 24px rgba(0,0,0,0.08)"}}>
+        <div style={{textAlign:"center",marginBottom:24}}>
+          <div style={{fontSize:40,marginBottom:8}}>📚</div>
+          <div style={{fontSize:18,fontWeight:600,color:"#333"}}>파닉스 숙제 시작하기</div>
+          <div style={{fontSize:13,color:"#888",marginTop:4}}>이름을 입력하고 오늘 숙제를 확인해요!</div>
+        </div>
+        <input value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>e.key==="Enter"&&login()}
+          placeholder="이름을 입력하세요"
+          style={{width:"100%",padding:"12px 16px",borderRadius:12,border:`1.5px solid ${C.mid}`,fontSize:16,marginBottom:16}}/>
+        <button onClick={login}
+          style={{width:"100%",padding:13,borderRadius:12,background:C.primary,color:"white",border:"none",fontSize:16,fontWeight:600}}>
+          시작하기 →
+        </button>
+      </div>
+    </div>
+  );
+
+  // ── STAGES ──
+  if(screen==="stages") return (
+    <div style={{minHeight:"100vh",paddingBottom:40}}>
+      <Logo/>
+      <div style={{maxWidth:500,margin:"0 auto",padding:"0 16px"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+          <div>
+            <div style={{fontSize:17,fontWeight:600,color:"#333"}}>{student} 학생의 파닉스 과정</div>
+            <div style={{fontSize:13,color:"#888"}}>총 {TASKS.length}개 중 {totalDone}개 완료</div>
+          </div>
+          <div style={{background:C.light,borderRadius:12,padding:"8px 14px",textAlign:"center"}}>
+            <div style={{fontSize:20,fontWeight:700,color:C.primary}}>{Math.round(totalDone/TASKS.length*100)}%</div>
+            <div style={{fontSize:11,color:C.primary}}>달성률</div>
+          </div>
+        </div>
+        {STAGES.map(st=>{
+          const d=stDone(st.id),tot=stTot(st.id);
+          return (
+            <div key={st.id} onClick={()=>{setSelStage(st.id);setScreen("list");}}
+              style={{background:"white",borderRadius:16,padding:18,marginBottom:12,boxShadow:"0 2px 12px rgba(0,0,0,0.06)",cursor:"pointer",border:`1.5px solid ${d===tot&&tot>0?"#4CAF50":"#f0f0f0"}`}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div>
+                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                    <span style={{background:st.bg,color:st.color,borderRadius:8,padding:"2px 10px",fontSize:12,fontWeight:600}}>{st.name}</span>
+                    <span style={{fontSize:14,fontWeight:600,color:"#333"}}>{st.label}</span>
+                  </div>
+                  <div style={{fontSize:12,color:"#888"}}>{tot}개 과제 · {d}개 완료</div>
+                </div>
+                <div style={{display:"flex",alignItems:"center",gap:10}}>
+                  <div style={{width:46,height:46,borderRadius:"50%",background:st.bg,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                    <span style={{fontSize:13,fontWeight:700,color:st.color}}>{d}/{tot}</span>
+                  </div>
+                  <span style={{color:"#ccc",fontSize:20}}>›</span>
+                </div>
+              </div>
+              <div style={{marginTop:10,height:5,borderRadius:4,background:"#f0f0f0",overflow:"hidden"}}>
+                <div style={{height:"100%",borderRadius:4,background:st.color,width:`${(d/tot)*100}%`}}/>
+              </div>
+            </div>
+          );
+        })}
+        <button onClick={()=>{setScreen("login");setStudent(null);setName("");}}
+          style={{marginTop:8,padding:10,borderRadius:10,background:"white",color:"#888",border:"1px solid #e0e0e0",fontSize:13,width:"100%"}}>
+          로그아웃
+        </button>
+      </div>
+    </div>
+  );
+
+  // ── TASK LIST ──
+  if(screen==="list"){
+    const st=STAGES.find(s=>s.id===selStage);
+    const tasks=TASKS.filter(t=>t.stage===selStage);
+    return (
+      <div style={{minHeight:"100vh",paddingBottom:40}}>
+        <Logo/>
+        <div style={{maxWidth:500,margin:"0 auto",padding:"0 16px"}}>
+          <button onClick={()=>setScreen("stages")} style={{marginBottom:14,padding:"8px 16px",borderRadius:10,background:"white",color:"#666",border:"1px solid #e0e0e0",fontSize:13}}>← 전체 단계</button>
+          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
+            <span style={{background:st.bg,color:st.color,borderRadius:8,padding:"4px 12px",fontSize:13,fontWeight:600}}>{st.name}</span>
+            <span style={{fontSize:16,fontWeight:600,color:"#333"}}>{st.label}</span>
+          </div>
+          {tasks.map((task,idx)=>{
+            const d2=isDone(task.id);
+            return (
+              <div key={task.id} onClick={()=>{setSelTask(task);setScreen("task");}}
+                style={{background:"white",borderRadius:14,padding:"14px 18px",marginBottom:10,boxShadow:"0 2px 10px rgba(0,0,0,0.05)",cursor:"pointer",border:`1.5px solid ${d2?"#4CAF50":"#f0f0f0"}`,display:"flex",alignItems:"center",gap:14}}>
+                <div style={{width:36,height:36,borderRadius:10,background:d2?"#E8F5E9":st.bg,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:14,color:d2?"#2E7D32":st.color,flexShrink:0}}>
+                  {d2?"✓":idx+1}
+                </div>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:14,fontWeight:600,color:"#333"}}>{task.title}</div>
+                  <div style={{fontSize:12,color:"#888",marginTop:2}}>{task.words.join(", ")}</div>
+                </div>
+                <span style={{color:"#ccc",fontSize:20}}>›</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  // ── TASK DETAIL ──
+  if(screen==="task"&&selTask){
+    const st=STAGES.find(s=>s.id===selTask.stage);
+    return (
+      <div style={{minHeight:"100vh",paddingBottom:40}}>
+        <Confetti show={confetti}/>
+        <Logo/>
+        <div style={{maxWidth:500,margin:"0 auto",padding:"0 16px"}}>
+          <button onClick={()=>{setScreen("list");setSelTask(null);}} style={{marginBottom:14,padding:"8px 16px",borderRadius:10,background:"white",color:"#666",border:"1px solid #e0e0e0",fontSize:13}}>← 과제 목록</button>
+
+          <div style={{background:"white",borderRadius:20,padding:22,boxShadow:"0 2px 16px rgba(0,0,0,0.06)",marginBottom:14}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,flexWrap:"wrap"}}>
+              <span style={{background:st.bg,color:st.color,borderRadius:8,padding:"2px 10px",fontSize:12,fontWeight:600}}>{st.name} · {st.label}</span>
+              {isDone(selTask.id)&&<span style={{background:"#E8F5E9",color:"#2E7D32",borderRadius:8,padding:"2px 10px",fontSize:12,fontWeight:600}}>✅ 완료</span>}
+            </div>
+            <div style={{fontSize:19,fontWeight:700,color:"#222",marginBottom:8}}>{selTask.title}</div>
+            <div style={{fontSize:13,color:"#666",background:"#faf7f5",borderRadius:10,padding:12,lineHeight:1.6}}>💡 {selTask.tip}</div>
+          </div>
+
+          <div style={{background:"white",borderRadius:20,padding:22,boxShadow:"0 2px 16px rgba(0,0,0,0.06)",marginBottom:14}}>
+            <div style={{fontSize:15,fontWeight:600,color:"#333",marginBottom:4}}>🔊 원어민 발음 듣기</div>
+            <div style={{fontSize:12,color:"#888",marginBottom:12}}>단어를 클릭하면 원어민 발음을 들을 수 있어요!</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:14}}>
+              {selTask.words.map((w,i)=>(
+                <button key={i} onClick={()=>{setPlayWord(w);spk(w);setTimeout(()=>setPlayWord(null),1200);}}
+                  style={{padding:"9px 18px",borderRadius:20,background:playWord===w?st.color:st.bg,color:playWord===w?"white":st.color,border:`1.5px solid ${st.color}`,fontSize:15,fontWeight:600,transition:"all 0.2s"}}>
+                  {w} {playWord===w?"🔉":"🔊"}
+                </button>
+              ))}
+            </div>
+            <button onClick={()=>spkAll(selTask.words)}
+              style={{padding:"10px 20px",borderRadius:12,background:st.color,color:"white",border:"none",fontSize:13,fontWeight:600,width:"100%"}}>
+              ▶ 전체 단어 순서대로 듣기
+            </button>
+          </div>
+
+          <div style={{background:"white",borderRadius:20,padding:22,boxShadow:"0 2px 16px rgba(0,0,0,0.06)",marginBottom:14}}>
+            <div style={{fontSize:15,fontWeight:600,color:"#333",marginBottom:14}}>🎤 음성 제출</div>
+            <div style={{fontSize:13,color:"#888",marginBottom:8}}>방법 1 · 직접 녹음하기</div>
+            {!recording
+              ?<button onClick={startRec} style={{padding:12,borderRadius:12,background:C.primary,color:"white",border:"none",fontSize:14,fontWeight:600,width:"100%"}}>🎙️ 녹음 시작</button>
+              :<button onClick={stopRec} style={{padding:12,borderRadius:12,background:"#e53935",color:"white",border:"none",fontSize:14,fontWeight:600,width:"100%",animation:"pulse 1s infinite"}}>⏹️ 녹음 중지</button>
+            }
+            <div style={{borderTop:"1px solid #f0f0f0",margin:"14px 0"}}/>
+            <div style={{fontSize:13,color:"#888",marginBottom:8}}>방법 2 · 파일 업로드하기</div>
+            <input ref={fileRef} type="file" accept="audio/*" onChange={handleFile} style={{display:"none"}}/>
+            <button onClick={()=>fileRef.current?.click()} style={{padding:12,borderRadius:12,background:"#f5f5f5",color:"#444",border:"1px solid #e0e0e0",fontSize:14,width:"100%"}}>📁 음성 파일 업로드</button>
+            {uploaded[selTask.id]&&<div style={{fontSize:12,color:"#888",marginTop:6}}>📎 {uploaded[selTask.id]}</div>}
+            {audioURLs[selTask.id]&&(
+              <div style={{background:C.light,borderRadius:12,padding:14,marginTop:14}}>
+                <div style={{fontSize:13,color:C.primary,fontWeight:600,marginBottom:8}}>🎵 제출 음성 미리듣기</div>
+                <audio src={audioURLs[selTask.id]} controls/>
+              </div>
+            )}
+            <div style={{marginTop:16}}>
+              {!isDone(selTask.id)
+                ?<button onClick={submit} disabled={!hasAudio}
+                    style={{padding:14,borderRadius:12,background:hasAudio?C.primary:"#ccc",color:"white",border:"none",fontSize:15,fontWeight:700,width:"100%",cursor:hasAudio?"pointer":"not-allowed"}}>
+                    {hasAudio?"✅ 숙제 제출하기!":"음성을 먼저 녹음하거나 업로드해주세요"}
+                  </button>
+                :<div style={{textAlign:"center",padding:14,background:"#e8f5e9",borderRadius:12,color:"#2e7d32",fontWeight:600,fontSize:15}}>✅ 이미 완료한 숙제입니다!</div>
+              }
+            </div>
+          </div>
+        </div>
+
+        {congrats&&(
+          <div style={{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000}}>
+            <div style={{background:"white",borderRadius:24,padding:36,maxWidth:320,width:"90%",textAlign:"center"}}>
+              <div style={{fontSize:56,marginBottom:12}}>🎉</div>
+              <div style={{fontSize:22,fontWeight:700,color:"#333",marginBottom:8}}>완료!</div>
+              <div style={{fontSize:15,color:"#555",lineHeight:1.7,marginBottom:6}}>
+                <span style={{fontWeight:700,color:C.primary}}>{student}</span> 학생,<br/>
+                <b>{selTask.title}</b> 과제를 완료했어요!
+              </div>
+              <div style={{fontSize:13,color:"#888",marginBottom:24}}>꾸준히 하면 반드시 영어 실력이 늘어요 💪</div>
+              <button onClick={()=>{setCongrats(false);setScreen("list");}}
+                style={{padding:"13px 32px",borderRadius:12,background:C.primary,color:"white",border:"none",fontSize:15,fontWeight:700,width:"100%"}}>
+                과제 목록으로 돌아가기
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+  return null;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
