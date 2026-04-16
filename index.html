@@ -434,29 +434,7 @@ function TeacherDashboard({onBack}){
                   </div>
                 )}
 
-                {/* 발음 분석 */}
-                {d&&(
-                  <div style={{marginBottom:10}}>
-                    <button onClick={()=>startAnalysis(task)} disabled={analyzing===task.id}
-                      style={{padding:"8px 16px",borderRadius:10,background:analyzing===task.id?"#f0f0f0":"#E3F2FD",color:analyzing===task.id?"#999":"#1565C0",border:"none",fontSize:12,fontWeight:600,width:"100%"}}>
-                      {analyzing===task.id?"🎤 말씀해 주세요... (단어들을 읽어주세요)":"🔍 발음 정확도 분석하기"}
-                    </button>
-                    {ar&&(
-                      <div style={{marginTop:8,background:ar.score>=80?"#E8F5E9":ar.score>=60?"#FFF9C4":"#FFEBEE",borderRadius:10,padding:12}}>
-                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
-                          <span style={{fontSize:13,fontWeight:600,color:ar.score>=80?"#2E7D32":ar.score>=60?"#795548":"#C62828"}}>
-                            정확도: {ar.score}점 ({ar.correct}/{ar.total}개)
-                          </span>
-                          <span style={{fontSize:16}}>{ar.score>=80?"🌟":ar.score>=60?"👍":"💪"}</span>
-                        </div>
-                        <div style={{fontSize:11,color:"#666"}}>인식된 발음: "{ar.said}"</div>
-                        <div style={{height:6,borderRadius:3,background:"rgba(0,0,0,0.1)",overflow:"hidden",marginTop:6}}>
-                          <div style={{height:"100%",borderRadius:3,background:ar.score>=80?"#4CAF50":ar.score>=60?"#FFC107":"#F44336",width:`${ar.score}%`}}/>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
+
 
                 {/* 선생님 코멘트 */}
                 <div>
