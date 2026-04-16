@@ -193,9 +193,7 @@ function ParentReport({student, studentData, onClose}){
 
   return(
     <div style={{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.6)",zIndex:2000,overflow:"auto",padding:20}}>
-              <div id="report" style={{background:"white",maxWidth:680,margin:"0 auto",borderRadius:20,overflow:"hidden",boxShadow:"0 8px 40px rgba(0,0,0,0.2)",border:"3px solid #C9A84C",outline:"2px solid #F0D080",outlineOffset:"3px"}}>
-        {/* 금색 상단 장식 */}
-        <div style={{height:8,background:"linear-gradient(90deg,#b8860b,#ffd700,#f0d080,#ffd700,#b8860b)"}}/>
+              <div id="report" style={{background:"white",maxWidth:680,margin:"0 auto",borderRadius:20,overflow:"hidden",boxShadow:"0 8px 40px rgba(0,0,0,0.2)"}}>
         {/* 헤더 */}
         <div style={{background:`linear-gradient(135deg, ${C.primary}, #b84a1a)`,padding:"32px 36px",color:"white",textAlign:"center"}}>
           <div style={{fontSize:13,opacity:0.85,marginBottom:4,letterSpacing:2}}>와와학습코칭센터 · COACHING CENTER</div>
@@ -302,8 +300,6 @@ function ParentReport({student, studentData, onClose}){
             와와학습코칭센터 Phonics Home Training System<br/>
             본 보고서는 {today}에 자동 생성되었습니다.
           </div>
-          {/* 금색 하단 장식 */}
-          <div style={{height:8,background:"linear-gradient(90deg,#b8860b,#ffd700,#f0d080,#ffd700,#b8860b)",margin:"0 -36px",marginTop:20}}/>
         </div>
       </div>
 
