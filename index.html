@@ -110,13 +110,13 @@ body{font-family:'Malgun Gothic',sans-serif;background:#f7f3f0;font-size:14px;co
 </div>
 
 <div class="tabs" id="tabBar">
-  <div class="tab on" data-pg="register">신규 등록</div>
-  <div class="tab" data-pg="timetable">시간표</div>
-  <div class="tab" data-pg="kakao">카카오톡</div>
-  <div class="tab" data-pg="list">학생 목록</div>
-  <div class="tab" data-pg="schedule">🗓 학원 시간표</div>
-  <div class="tab" data-pg="inactive">😴 휴회</div>
-  <div class="tab" data-pg="counsel">📝 상담일지</div>
+  <div class="tab on" onclick="goTab('register')">신규 등록</div>
+  <div class="tab" onclick="goTab('timetable')">시간표</div>
+  <div class="tab" onclick="goTab('kakao')">카카오톡</div>
+  <div class="tab" onclick="goTab('list')">학생 목록</div>
+  <div class="tab" onclick="goTab('schedule')">🗓 학원 시간표</div>
+  <div class="tab" onclick="goTab('inactive')">😴 휴회</div>
+  <div class="tab" onclick="goTab('counsel')">📝 상담일지</div>
 </div>
 
 <div class="wrap">
@@ -437,22 +437,26 @@ function svCD(){localStorage.setItem('wCD',JSON.stringify(CD));}
 
 function v(id){return document.getElementById(id);}
 
-// 탭
-document.getElementById('tabBar').addEventListener('click',function(e){
-  var tab=e.target.closest('.tab');
-  if(!tab) return;
-  var pg=tab.getAttribute('data-pg');
+function goTab(pg){
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
-  tab.classList.add('on');
+  event.currentTarget.classList.add('on');
   document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
   var el=document.getElementById('pg-'+pg);
   if(el) el.classList.add('on');
-  if(pg==='timetable'){bldSBtns('ttBtns','tt');renderTT(getFD());}
-  else if(pg==='kakao'){bldSBtns('kkBtns','kk');bldKK(getFD());}
-  else if(pg==='list'){renderList();}
-  else if(pg==='schedule'){renderSch();}
-  else if(pg==='inactive'){renderIn();}
-  else if(pg==='counsel'){renderCnSel();v('cnContent').style.display='none';}
+  try{
+    if(pg==='timetable'){bldSBtns('ttBtns','tt');renderTT(getFD());}
+    else if(pg==='kakao'){bldSBtns('kkBtns','kk');bldKK(getFD());}
+    else if(pg==='list'){renderList();}
+    else if(pg==='schedule'){renderSch();}
+    else if(pg==='inactive'){renderIn();}
+    else if(pg==='counsel'){renderCnSel();v('cnContent').style.display='none';}
+  }catch(e){console.error(e);}
+}
+
+// 탭 이벤트 위임 제거
+document.getElementById('tabBar').addEventListener('click',function(e){
+  var tab=e.target.closest('.tab');
+  if(!tab) return;
 });
 
 // 필터 버튼
