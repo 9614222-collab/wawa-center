@@ -356,9 +356,11 @@ function TeacherDashboard({onBack}){
 
   const students=Object.keys(allData).sort();
 
-  if(showReport&&selStudent)return(
-    <ParentReport student={selStudent} studentData={allData[selStudent]} onClose={()=>setShowReport(false)}/>
-  );
+  if(showReport&&selStudent){
+    return(
+      <ParentReport student={selStudent} studentData={allData[selStudent]} onClose={()=>setShowReport(false)}/>
+    );
+  }
 
   // 학생 상세
   if(selStudent){
