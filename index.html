@@ -10,26 +10,32 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-  const firebaseConfig = {
-    apiKey: "AIzaSyCraK-qL1onbcdJV9Cn48GKFkZtt3UPIr0",
-    authDomain: "wawa-phonics.firebaseapp.com",
-    databaseURL: "https://wawa-phonics-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "wawa-phonics",
-    storageBucket: "wawa-phonics.firebasestorage.app",
-    messagingSenderId: "19530679960",
-    appId: "1:19530679960:web:43582dc5209b789148b2ed",
-    measurementId: "G-PK8ZZC9RBL"
+  import { getStorage, ref as sref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+  const fc = {
+    apiKey:"AIzaSyCraK-qL1onbcdJV9Cn48GKFkZtt3UPIr0",
+    authDomain:"wawa-phonics.firebaseapp.com",
+    databaseURL:"https://wawa-phonics-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:"wawa-phonics",
+    storageBucket:"wawa-phonics.firebasestorage.app",
+    messagingSenderId:"19530679960",
+    appId:"1:19530679960:web:43582dc5209b789148b2ed"
   };
-  const app = initializeApp(firebaseConfig);
+  const app = initializeApp(fc);
   const db = getDatabase(app);
-  window._fbSet = (path, val) => set(ref(db, path), val);
-  window._fbGet = (path) => get(ref(db, path)).then(s => s.val());
-  window._fbWatch = (path, cb) => onValue(ref(db, path), s => cb(s.val()));
+  const st = getStorage(app);
+  window._fbSet = (path,val) => set(ref(db,path),val);
+  window._fbGet = (path) => get(ref(db,path)).then(s=>s.val());
+  window._fbWatch = (path,cb) => onValue(ref(db,path),s=>cb(s.val()));
+  window._upload = async (path, blob) => {
+    const r = sref(st, path);
+    await uploadBytes(r, blob);
+    return getDownloadURL(r);
+  };
 </script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#faf7f5;min-height:100vh}
-input:focus{outline:none;border-color:#D4622A!important}
+input:focus,textarea:focus{outline:none;border-color:#D4622A!important}
 audio{width:100%}
 button{font-family:inherit;cursor:pointer}
 @keyframes fall0{to{transform:translateY(110vh) rotate(360deg);opacity:0}}
@@ -37,6 +43,8 @@ button{font-family:inherit;cursor:pointer}
 @keyframes fall2{to{transform:translateY(110vh) rotate(180deg) translateX(80px);opacity:0}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
 @keyframes popIn{0%{transform:scale(0.7);opacity:0}100%{transform:scale(1);opacity:1}}
+@media print{.no-print{display:none!important}.print-only{display:block!important}}
+.print-only{display:none}
 </style>
 </head>
 <body>
@@ -118,8 +126,7 @@ function Confetti({show}){
       {Array.from({length:32},(_,i)=>(
         <div key={i} style={{position:"absolute",left:`${Math.random()*100}%`,top:"-10px",width:8,height:8,
           borderRadius:Math.random()>.5?"50%":2,background:cols[i%cols.length],
-          animation:`fall${i%3} ${1.5+Math.random()}s ease-in forwards`,
-          animationDelay:`${Math.random()*0.5}s`}}/>
+          animation:`fall${i%3} ${1.5+Math.random()}s ease-in forwards`,animationDelay:`${Math.random()*0.5}s`}}/>
       ))}
     </div>
   );
@@ -127,25 +134,182 @@ function Confetti({show}){
 
 function getBestVoice(){
   const vs=window.speechSynthesis.getVoices();
-  return vs.find(x=>x.lang==="en-US"&&x.name.toLowerCase().includes("female"))
-    ||vs.find(x=>x.lang==="en-US")||vs.find(x=>x.lang==="en_US")
-    ||vs.find(x=>x.lang.startsWith("en-"))||vs.find(x=>x.lang.startsWith("en"))||null;
+  return vs.find(x=>x.lang==="en-US"&&x.name.toLowerCase().includes("female"))||vs.find(x=>x.lang==="en-US")||vs.find(x=>x.lang==="en_US")||vs.find(x=>x.lang.startsWith("en-"))||vs.find(x=>x.lang.startsWith("en"))||null;
 }
 function spk(text,rate=0.85){
   window.speechSynthesis.cancel();
-  const doSpeak=()=>{const u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=rate;u.pitch=1.1;const v=getBestVoice();if(v)u.voice=v;window.speechSynthesis.speak(u);};
-  const vs=window.speechSynthesis.getVoices();
-  if(vs.length>0){doSpeak();}else{window.speechSynthesis.onvoiceschanged=()=>{doSpeak();window.speechSynthesis.onvoiceschanged=null;};}
+  const go=()=>{const u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=rate;u.pitch=1.1;const v=getBestVoice();if(v)u.voice=v;window.speechSynthesis.speak(u);};
+  window.speechSynthesis.getVoices().length>0?go():(window.speechSynthesis.onvoiceschanged=()=>{go();window.speechSynthesis.onvoiceschanged=null;});
 }
 function spkAll(words){
   window.speechSynthesis.cancel();
-  const doSpeak=()=>{
-    const v=getBestVoice();let i=0;
-    function next(){if(i>=words.length)return;const u=new SpeechSynthesisUtterance(words[i++].w);u.lang="en-US";u.rate=0.8;u.pitch=1.1;if(v)u.voice=v;u.onend=()=>setTimeout(next,600);window.speechSynthesis.speak(u);}
-    next();
+  const go=()=>{const v=getBestVoice();let i=0;function next(){if(i>=words.length)return;const u=new SpeechSynthesisUtterance(words[i++].w);u.lang="en-US";u.rate=0.8;u.pitch=1.1;if(v)u.voice=v;u.onend=()=>setTimeout(next,600);window.speechSynthesis.speak(u);}next();};
+  window.speechSynthesis.getVoices().length>0?go():(window.speechSynthesis.onvoiceschanged=()=>{go();window.speechSynthesis.onvoiceschanged=null;});
+}
+
+// 발음 분석 (Web Speech Recognition)
+function analyzeAccuracy(words, onResult){
+  const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){onResult(null,"이 브라우저는 발음 분석을 지원하지 않아요. Chrome을 사용해주세요.");return null;}
+  const r=new SR();
+  r.lang="en-US";r.continuous=false;r.interimResults=false;
+  r.onresult=(e)=>{
+    const said=e.results[0][0].transcript.toLowerCase().trim();
+    const expected=words.map(w=>w.w.toLowerCase()).join(" ");
+    const saidWords=said.split(/\s+/);
+    const expWords=expected.split(/\s+/);
+    let correct=0;
+    expWords.forEach(w=>{if(saidWords.includes(w))correct++;});
+    const score=Math.round((correct/expWords.length)*100);
+    onResult({score,said,expected,correct,total:expWords.length},null);
   };
-  const vs=window.speechSynthesis.getVoices();
-  if(vs.length>0){doSpeak();}else{window.speechSynthesis.onvoiceschanged=()=>{doSpeak();window.speechSynthesis.onvoiceschanged=null;};}
+  r.onerror=(e)=>onResult(null,"마이크 오류: "+e.error);
+  r.start();
+  return r;
+}
+
+// ── 학부모 보고서 ──
+function ParentReport({student, studentData, onClose}){
+  const done = studentData?.done||{};
+  const comments = studentData?.comments||{};
+  const totalDone = TASKS.filter(t=>done[`task_${t.id}`]).length;
+  const pct = Math.round(totalDone/TASKS.length*100);
+  const today = new Date().toLocaleDateString("ko-KR",{year:"numeric",month:"long",day:"numeric"});
+  const completedStages = STAGES.filter(st=>TASKS.filter(t=>t.stage===st.id).every(t=>done[`task_${t.id}`]));
+  const strongStages = STAGES.filter(st=>{
+    const tot=TASKS.filter(t=>t.stage===st.id).length;
+    const d=TASKS.filter(t=>t.stage===st.id&&done[`task_${t.id}`]).length;
+    return d/tot>=0.6&&d/tot<1;
+  });
+
+  const medals = pct===100?"🥇":pct>=80?"🥈":pct>=50?"🥉":"📚";
+  const overallComment = pct===100
+    ?"모든 파닉스 과정을 완벽하게 마스터했습니다! 영어 발음의 기초가 완성되었으며, 원어민에 가까운 소리를 낼 수 있는 탄탄한 기반을 갖추게 되었습니다."
+    :pct>=80
+    ?"파닉스 과정의 대부분을 훌륭히 완료했습니다. 꾸준한 노력 덕분에 영어 소리 규칙을 잘 익히고 있으며, 곧 완전한 마스터가 될 것입니다."
+    :pct>=50
+    ?"파닉스 과정의 절반 이상을 완료했습니다. 꾸준히 학습하고 있으며 영어 발음 향상에 좋은 진전을 보이고 있습니다."
+    :"파닉스 학습을 시작했습니다. 매일 조금씩 꾸준히 연습하면 빠르게 발전할 것입니다. 따뜻한 격려 부탁드립니다.";
+
+  return(
+    <div style={{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.6)",zIndex:2000,overflow:"auto",padding:20}}>
+      <div id="report" style={{background:"white",maxWidth:680,margin:"0 auto",borderRadius:20,overflow:"hidden",boxShadow:"0 8px 40px rgba(0,0,0,0.2)"}}>
+        {/* 헤더 */}
+        <div style={{background:`linear-gradient(135deg, ${C.primary}, #b84a1a)`,padding:"32px 36px",color:"white",textAlign:"center"}}>
+          <div style={{fontSize:13,opacity:0.85,marginBottom:4,letterSpacing:2}}>와와학습코칭센터 · COACHING CENTER</div>
+          <div style={{fontSize:26,fontWeight:700,marginBottom:4}}>Phonics 학습 성취 보고서</div>
+          <div style={{fontSize:13,opacity:0.8}}>{today} 발행</div>
+        </div>
+
+        <div style={{padding:"28px 36px"}}>
+          {/* 학생 정보 */}
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",background:"#faf7f5",borderRadius:16,padding:"20px 24px",marginBottom:24}}>
+            <div>
+              <div style={{fontSize:13,color:"#888",marginBottom:4}}>학생 이름</div>
+              <div style={{fontSize:24,fontWeight:700,color:"#333"}}>{student}</div>
+            </div>
+            <div style={{textAlign:"center"}}>
+              <div style={{fontSize:48}}>{medals}</div>
+              <div style={{fontSize:12,color:"#888",marginTop:4}}>{pct===100?"완전 마스터":pct>=80?"우수":pct>=50?"양호":"진행중"}</div>
+            </div>
+          </div>
+
+          {/* 전체 달성률 */}
+          <div style={{marginBottom:24}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}>
+              <div style={{fontSize:15,fontWeight:600,color:"#333"}}>전체 학습 달성률</div>
+              <div style={{fontSize:20,fontWeight:700,color:C.primary}}>{pct}%</div>
+            </div>
+            <div style={{height:14,borderRadius:7,background:"#f0f0f0",overflow:"hidden"}}>
+              <div style={{height:"100%",borderRadius:7,background:pct===100?"#4CAF50":C.primary,width:`${pct}%`}}/>
+            </div>
+            <div style={{fontSize:13,color:"#888",marginTop:6}}>총 {TASKS.length}개 과제 중 {totalDone}개 완료</div>
+          </div>
+
+          {/* 단계별 진도 */}
+          <div style={{marginBottom:24}}>
+            <div style={{fontSize:15,fontWeight:600,color:"#333",marginBottom:12}}>단계별 학습 현황</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+              {STAGES.map(st=>{
+                const tot=TASKS.filter(t=>t.stage===st.id).length;
+                const d=TASKS.filter(t=>t.stage===st.id&&done[`task_${t.id}`]).length;
+                const p=Math.round(d/tot*100);
+                return(
+                  <div key={st.id} style={{background:st.bg,borderRadius:12,padding:"12px 14px"}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+                      <div style={{fontSize:12,fontWeight:600,color:st.color}}>{st.name}</div>
+                      <div style={{fontSize:12,fontWeight:700,color:st.color}}>{d}/{tot}</div>
+                    </div>
+                    <div style={{fontSize:11,color:st.color,marginBottom:6,opacity:0.8}}>{st.label}</div>
+                    <div style={{height:5,borderRadius:3,background:"rgba(255,255,255,0.5)",overflow:"hidden"}}>
+                      <div style={{height:"100%",borderRadius:3,background:st.color,width:`${p}%`}}/>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 선생님 총평 */}
+          <div style={{background:"#faf7f5",borderRadius:16,padding:"20px 24px",marginBottom:24,borderLeft:`4px solid ${C.primary}`}}>
+            <div style={{fontSize:14,fontWeight:600,color:C.primary,marginBottom:10}}>👩‍🏫 선생님 종합 평가</div>
+            <div style={{fontSize:14,color:"#555",lineHeight:1.8}}>{overallComment}</div>
+            {completedStages.length>0&&(
+              <div style={{marginTop:10,fontSize:13,color:"#2E7D32"}}>
+                ✅ 완료 단계: {completedStages.map(s=>s.name).join(", ")}
+              </div>
+            )}
+            {strongStages.length>0&&(
+              <div style={{marginTop:6,fontSize:13,color:"#1565C0"}}>
+                📌 학습 중인 단계: {strongStages.map(s=>s.name).join(", ")}
+              </div>
+            )}
+          </div>
+
+          {/* 선생님 코멘트 */}
+          {Object.keys(comments).length>0&&(
+            <div style={{marginBottom:24}}>
+              <div style={{fontSize:15,fontWeight:600,color:"#333",marginBottom:12}}>📝 과제별 선생님 피드백</div>
+              {Object.entries(comments).map(([key,cm])=>{
+                const tid=parseInt(key.replace("task_",""));
+                const task=TASKS.find(t=>t.id===tid);
+                if(!task||!cm)return null;
+                return(
+                  <div key={key} style={{background:"white",border:"1px solid #f0f0f0",borderRadius:12,padding:"12px 16px",marginBottom:8}}>
+                    <div style={{fontSize:12,fontWeight:600,color:C.primary,marginBottom:4}}>{task.title}</div>
+                    <div style={{fontSize:13,color:"#555",lineHeight:1.6}}>{cm}</div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* 격려 메시지 */}
+          <div style={{background:`linear-gradient(135deg, ${C.light}, #fff)`,borderRadius:16,padding:"20px 24px",marginBottom:24,textAlign:"center"}}>
+            <div style={{fontSize:20,marginBottom:8}}>💪</div>
+            <div style={{fontSize:14,color:C.primary,fontWeight:600,marginBottom:6}}>{student} 학생에게 보내는 응원 메시지</div>
+            <div style={{fontSize:13,color:"#666",lineHeight:1.8}}>
+              {pct===100
+                ?"파닉스 전 과정을 완주한 것은 정말 대단한 성취입니다! 이 기초를 바탕으로 영어 실력이 더욱 빛날 거예요. 앞으로도 자신감을 갖고 영어를 즐겨주세요! 🌟"
+                :"매일 조금씩 꾸준히 연습하는 모습이 정말 훌륭합니다! 포기하지 않고 도전하는 자세가 가장 중요해요. 조금만 더 힘내면 분명 멋진 결과가 기다리고 있을 거예요! 🌈"}
+            </div>
+          </div>
+
+          {/* 푸터 */}
+          <div style={{textAlign:"center",borderTop:"1px solid #f0f0f0",paddingTop:20,color:"#aaa",fontSize:12}}>
+            와와학습코칭센터 Phonics Home Training System<br/>
+            본 보고서는 {today}에 자동 생성되었습니다.
+          </div>
+        </div>
+      </div>
+
+      {/* 버튼 */}
+      <div style={{maxWidth:680,margin:"16px auto",display:"flex",gap:10}} className="no-print">
+        <button onClick={()=>window.print()} style={{flex:1,padding:14,borderRadius:12,background:C.primary,color:"white",border:"none",fontSize:14,fontWeight:600}}>🖨️ 인쇄 / PDF 저장</button>
+        <button onClick={onClose} style={{flex:1,padding:14,borderRadius:12,background:"white",color:"#666",border:"1px solid #e0e0e0",fontSize:14,fontWeight:600}}>닫기</button>
+      </div>
+    </div>
+  );
 }
 
 // ── 선생님 대시보드 ──
@@ -154,49 +318,75 @@ function TeacherDashboard({onBack}){
   const [loading,setLoading]=useState(true);
   const [selStudent,setSelStudent]=useState(null);
   const [filterStage,setFilterStage]=useState(0);
+  const [showReport,setShowReport]=useState(false);
+  const [comments,setComments]=useState({});
+  const [savingComment,setSavingComment]=useState(null);
+  const [analyzing,setAnalyzing]=useState(null);
+  const [analysisResult,setAnalysisResult]=useState({});
 
   useEffect(()=>{
-    window._fbWatch("students",(data)=>{
-      setAllData(data||{});
-      setLoading(false);
-    });
+    window._fbWatch("students",(data)=>{setAllData(data||{});setLoading(false);});
   },[]);
 
+  function getStudentDone(n){return allData?.[n]?.done||{};}
+  function getStudentComments(n){return allData?.[n]?.comments||{};}
+  function getStudentAudio(n){return allData?.[n]?.audio||{};}
+  function countDone(n){return Object.values(getStudentDone(n)).filter(Boolean).length;}
+
+  async function saveComment(student,taskId,comment){
+    setSavingComment(taskId);
+    await window._fbSet(`students/${student}/comments/task_${taskId}`,comment);
+    setTimeout(()=>setSavingComment(null),1000);
+  }
+
+  function startAnalysis(task){
+    setAnalyzing(task.id);
+    analyzeAccuracy(task.words,(result,err)=>{
+      setAnalyzing(null);
+      if(err){alert(err);return;}
+      setAnalysisResult(p=>({...p,[task.id]:result}));
+    });
+  }
+
   if(loading)return(
-    <div style={{minHeight:"100vh"}}>
-      <Logo/>
-      <div style={{textAlign:"center",padding:40,color:"#888"}}>학생 데이터 불러오는 중...</div>
+    <div style={{minHeight:"100vh"}}><Logo/>
+      <div style={{textAlign:"center",padding:60,color:"#888",fontSize:15}}>학생 데이터 불러오는 중...</div>
     </div>
   );
 
-  const students=Object.keys(allData);
-  const getStudentDone=(sName)=>allData[sName]?.done||{};
-  const countDone=(sName)=>Object.values(getStudentDone(sName)).filter(Boolean).length;
+  const students=Object.keys(allData).sort();
 
-  // 학생 상세 보기
+  if(showReport&&selStudent)return(
+    <ParentReport student={selStudent} studentData={allData[selStudent]} onClose={()=>setShowReport(false)}/>
+  );
+
+  // 학생 상세
   if(selStudent){
     const done=getStudentDone(selStudent);
+    const savedComments=getStudentComments(selStudent);
+    const audioData=getStudentAudio(selStudent);
     const total=TASKS.length;
     const doneCount=countDone(selStudent);
     const filtered=filterStage===0?TASKS:TASKS.filter(t=>t.stage===filterStage);
+
     return(
       <div style={{minHeight:"100vh",paddingBottom:40}}>
         <Logo/>
-        <div style={{maxWidth:560,margin:"0 auto",padding:"0 16px"}}>
-          <button onClick={()=>setSelStudent(null)} style={{marginBottom:14,padding:"8px 16px",borderRadius:10,background:"white",color:"#666",border:"1px solid #e0e0e0",fontSize:13}}>← 전체 학생</button>
+        <div style={{maxWidth:600,margin:"0 auto",padding:"0 16px"}}>
+          <button onClick={()=>{setSelStudent(null);setComments({});setAnalysisResult({});}} style={{marginBottom:14,padding:"8px 16px",borderRadius:10,background:"white",color:"#666",border:"1px solid #e0e0e0",fontSize:13}}>← 전체 학생</button>
 
-          <div style={{background:"white",borderRadius:20,padding:20,marginBottom:16,boxShadow:"0 2px 16px rgba(0,0,0,0.06)"}}>
+          <div style={{background:"white",borderRadius:20,padding:20,marginBottom:14,boxShadow:"0 2px 16px rgba(0,0,0,0.06)"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
               <div>
                 <div style={{fontSize:20,fontWeight:700,color:"#333"}}>{selStudent} 학생</div>
-                <div style={{fontSize:13,color:"#888",marginTop:2}}>총 {total}개 중 {doneCount}개 완료 · {Math.round(doneCount/total*100)}%</div>
+                <div style={{fontSize:13,color:"#888",marginTop:2}}>{total}개 중 {doneCount}개 완료 · {Math.round(doneCount/total*100)}%</div>
               </div>
-              <div style={{width:56,height:56,borderRadius:"50%",background:doneCount===total?"#E8F5E9":C.light,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column"}}>
-                <div style={{fontSize:16,fontWeight:700,color:doneCount===total?"#2E7D32":C.primary}}>{Math.round(doneCount/total*100)}%</div>
-              </div>
+              <button onClick={()=>setShowReport(true)} style={{padding:"10px 18px",borderRadius:12,background:C.primary,color:"white",border:"none",fontSize:13,fontWeight:600}}>
+                📄 학부모 보고서
+              </button>
             </div>
             <div style={{height:8,borderRadius:4,background:"#f0f0f0",overflow:"hidden"}}>
-              <div style={{height:"100%",borderRadius:4,background:doneCount===total?"#4CAF50":C.primary,width:`${(doneCount/total)*100}%`,transition:"width 0.5s"}}/>
+              <div style={{height:"100%",borderRadius:4,background:doneCount===total?"#4CAF50":C.primary,width:`${(doneCount/total)*100}%`}}/>
             </div>
           </div>
 
@@ -209,24 +399,76 @@ function TeacherDashboard({onBack}){
           </div>
 
           {/* 과제 목록 */}
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {filtered.map(task=>{
-              const d=!!done[`task_${task.id}`];
-              const st=STAGES.find(s=>s.id===task.stage);
-              return(
-                <div key={task.id} style={{background:"white",borderRadius:14,padding:"12px 16px",display:"flex",alignItems:"center",gap:12,boxShadow:"0 1px 8px rgba(0,0,0,0.05)",border:`1.5px solid ${d?"#4CAF50":"#f0f0f0"}`}}>
+          {filtered.map(task=>{
+            const d=!!done[`task_${task.id}`];
+            const st=STAGES.find(s=>s.id===task.stage);
+            const audioURL=audioData[`task_${task.id}`];
+            const savedCmt=savedComments[`task_${task.id}`]||"";
+            const localCmt=comments[task.id]??savedCmt;
+            const ar=analysisResult[task.id];
+
+            return(
+              <div key={task.id} style={{background:"white",borderRadius:16,padding:18,marginBottom:12,boxShadow:"0 1px 10px rgba(0,0,0,0.06)",border:`1.5px solid ${d?"#4CAF50":"#f0f0f0"}`}}>
+                <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
                   <div style={{width:32,height:32,borderRadius:8,background:d?"#E8F5E9":st.bg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                    <span style={{fontSize:16}}>{d?"✅":"⬜"}</span>
+                    <span>{d?"✅":"⬜"}</span>
                   </div>
                   <div style={{flex:1}}>
-                    <div style={{fontSize:13,fontWeight:600,color:"#333"}}>{task.title}</div>
+                    <div style={{fontSize:14,fontWeight:600,color:"#333"}}>{task.title}</div>
                     <span style={{fontSize:11,background:st.bg,color:st.color,borderRadius:6,padding:"1px 8px"}}>{st.name}</span>
                   </div>
                   <div style={{fontSize:13,fontWeight:700,color:d?"#4CAF50":"#ccc"}}>{d?"완료":"미완료"}</div>
                 </div>
-              );
-            })}
-          </div>
+
+                {/* 음성 듣기 */}
+                {audioURL&&(
+                  <div style={{background:"#f8f8f8",borderRadius:12,padding:12,marginBottom:10}}>
+                    <div style={{fontSize:12,fontWeight:600,color:"#555",marginBottom:6}}>🎵 학생 제출 음성</div>
+                    <audio src={audioURL} controls style={{width:"100%",height:36}}/>
+                  </div>
+                )}
+
+                {/* 발음 분석 */}
+                {d&&(
+                  <div style={{marginBottom:10}}>
+                    <button onClick={()=>startAnalysis(task)} disabled={analyzing===task.id}
+                      style={{padding:"8px 16px",borderRadius:10,background:analyzing===task.id?"#f0f0f0":"#E3F2FD",color:analyzing===task.id?"#999":"#1565C0",border:"none",fontSize:12,fontWeight:600,width:"100%"}}>
+                      {analyzing===task.id?"🎤 말씀해 주세요... (단어들을 읽어주세요)":"🔍 발음 정확도 분석하기"}
+                    </button>
+                    {ar&&(
+                      <div style={{marginTop:8,background:ar.score>=80?"#E8F5E9":ar.score>=60?"#FFF9C4":"#FFEBEE",borderRadius:10,padding:12}}>
+                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+                          <span style={{fontSize:13,fontWeight:600,color:ar.score>=80?"#2E7D32":ar.score>=60?"#795548":"#C62828"}}>
+                            정확도: {ar.score}점 ({ar.correct}/{ar.total}개)
+                          </span>
+                          <span style={{fontSize:16}}>{ar.score>=80?"🌟":ar.score>=60?"👍":"💪"}</span>
+                        </div>
+                        <div style={{fontSize:11,color:"#666"}}>인식된 발음: "{ar.said}"</div>
+                        <div style={{height:6,borderRadius:3,background:"rgba(0,0,0,0.1)",overflow:"hidden",marginTop:6}}>
+                          <div style={{height:"100%",borderRadius:3,background:ar.score>=80?"#4CAF50":ar.score>=60?"#FFC107":"#F44336",width:`${ar.score}%`}}/>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 선생님 코멘트 */}
+                <div>
+                  <div style={{fontSize:12,color:"#888",marginBottom:4}}>📝 선생님 코멘트</div>
+                  <div style={{display:"flex",gap:6}}>
+                    <textarea value={localCmt}
+                      onChange={e=>setComments(p=>({...p,[task.id]:e.target.value}))}
+                      placeholder="이 과제에 대한 피드백을 입력하세요..."
+                      style={{flex:1,padding:"8px 12px",borderRadius:10,border:"1px solid #e0e0e0",fontSize:12,resize:"none",height:56,fontFamily:"inherit"}}/>
+                    <button onClick={()=>saveComment(selStudent,task.id,localCmt)}
+                      style={{padding:"8px 14px",borderRadius:10,background:savingComment===task.id?"#4CAF50":C.primary,color:"white",border:"none",fontSize:12,fontWeight:600,minWidth:50}}>
+                      {savingComment===task.id?"✓":"저장"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     );
@@ -238,62 +480,55 @@ function TeacherDashboard({onBack}){
       <Logo/>
       <div style={{maxWidth:560,margin:"0 auto",padding:"0 16px"}}>
         <button onClick={onBack} style={{marginBottom:14,padding:"8px 16px",borderRadius:10,background:"white",color:"#666",border:"1px solid #e0e0e0",fontSize:13}}>← 로그인으로</button>
-
         <div style={{background:C.primary,borderRadius:20,padding:20,marginBottom:16,color:"white"}}>
           <div style={{fontSize:18,fontWeight:700}}>👩‍🏫 선생님 대시보드</div>
           <div style={{fontSize:13,opacity:0.85,marginTop:4}}>학생 {students.length}명 · 전체 과제 {TASKS.length}개</div>
         </div>
-
         {students.length===0?(
-          <div style={{textAlign:"center",padding:40,color:"#aaa",background:"white",borderRadius:16}}>
-            아직 접속한 학생이 없어요
-          </div>
+          <div style={{textAlign:"center",padding:40,color:"#aaa",background:"white",borderRadius:16}}>아직 접속한 학생이 없어요</div>
         ):(
-          <div style={{display:"flex",flexDirection:"column",gap:10}}>
-            {students.sort().map(sName=>{
-              const d=countDone(sName);
-              const pct=Math.round(d/TASKS.length*100);
-              const stageProgress=STAGES.map(st=>{
-                const tot=TASKS.filter(t=>t.stage===st.id).length;
-                const done2=TASKS.filter(t=>t.stage===st.id&&!!getStudentDone(sName)[`task_${t.id}`]).length;
-                return{...st,done:done2,tot};
-              });
-              return(
-                <div key={sName} onClick={()=>setSelStudent(sName)}
-                  style={{background:"white",borderRadius:16,padding:18,boxShadow:"0 2px 12px rgba(0,0,0,0.06)",cursor:"pointer",border:"1.5px solid #f0f0f0"}}>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-                    <div>
-                      <div style={{fontSize:16,fontWeight:700,color:"#333"}}>{sName}</div>
-                      <div style={{fontSize:12,color:"#888",marginTop:2}}>{TASKS.length}개 중 {d}개 완료</div>
-                    </div>
-                    <div style={{display:"flex",alignItems:"center",gap:8}}>
-                      <div style={{width:44,height:44,borderRadius:"50%",background:pct===100?"#E8F5E9":C.light,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                        <span style={{fontSize:13,fontWeight:700,color:pct===100?"#2E7D32":C.primary}}>{pct}%</span>
-                      </div>
-                      <span style={{color:"#ccc",fontSize:20}}>›</span>
-                    </div>
+          students.map(sName=>{
+            const d=countDone(sName),pct=Math.round(d/TASKS.length*100);
+            return(
+              <div key={sName} onClick={()=>setSelStudent(sName)}
+                style={{background:"white",borderRadius:16,padding:18,marginBottom:12,boxShadow:"0 2px 12px rgba(0,0,0,0.06)",cursor:"pointer",border:"1.5px solid #f0f0f0"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                  <div>
+                    <div style={{fontSize:16,fontWeight:700,color:"#333"}}>{sName}</div>
+                    <div style={{fontSize:12,color:"#888",marginTop:2}}>{TASKS.length}개 중 {d}개 완료</div>
                   </div>
-                  <div style={{height:6,borderRadius:3,background:"#f0f0f0",overflow:"hidden",marginBottom:10}}>
-                    <div style={{height:"100%",borderRadius:3,background:pct===100?"#4CAF50":C.primary,width:`${pct}%`}}/>
-                  </div>
-                  <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-                    {stageProgress.map(st=>(
-                      <div key={st.id} style={{display:"flex",alignItems:"center",gap:3,background:st.bg,borderRadius:8,padding:"3px 8px"}}>
-                        <span style={{fontSize:10,color:st.color,fontWeight:600}}>{st.name.replace("Stage ","S")}</span>
-                        <span style={{fontSize:10,color:st.color}}>{st.done}/{st.tot}</span>
-                      </div>
-                    ))}
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <div style={{width:44,height:44,borderRadius:"50%",background:pct===100?"#E8F5E9":C.light,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                      <span style={{fontSize:13,fontWeight:700,color:pct===100?"#2E7D32":C.primary}}>{pct}%</span>
+                    </div>
+                    <span style={{color:"#ccc",fontSize:20}}>›</span>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+                <div style={{height:6,borderRadius:3,background:"#f0f0f0",overflow:"hidden",marginBottom:8}}>
+                  <div style={{height:"100%",borderRadius:3,background:pct===100?"#4CAF50":C.primary,width:`${pct}%`}}/>
+                </div>
+                <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+                  {STAGES.map(st=>{
+                    const tot=TASKS.filter(t=>t.stage===st.id).length;
+                    const dn=TASKS.filter(t=>t.stage===st.id&&!!getStudentDone(sName)[`task_${t.id}`]).length;
+                    return(
+                      <div key={st.id} style={{background:st.bg,borderRadius:8,padding:"3px 8px",display:"flex",alignItems:"center",gap:3}}>
+                        <span style={{fontSize:10,color:st.color,fontWeight:600}}>{st.name.replace("Stage ","S")}</span>
+                        <span style={{fontSize:10,color:st.color}}>{dn}/{tot}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })
         )}
       </div>
     </div>
   );
 }
 
+// ── 메인 앱 ──
 function App(){
   const [screen,setScreen]=useState("login");
   const [name,setName]=useState("");
@@ -303,14 +538,15 @@ function App(){
   const [selTask,setSelTask]=useState(null);
   const [selStage,setSelStage]=useState(null);
   const [recording,setRecording]=useState(false);
-  const [audioURLs,setAudioURLs]=useState({});
-  const [uploaded,setUploaded]=useState({});
+  const [audioBlob,setAudioBlob]=useState(null);
+  const [audioURL,setAudioURL]=useState(null);
+  const [uploading,setUploading]=useState(false);
   const [congrats,setCongrats]=useState(false);
   const [confetti,setConfetti]=useState(false);
   const [playWord,setPlayWord]=useState(null);
   const [showMeaning,setShowMeaning]=useState({});
-  const [teacherPwInput,setTeacherPwInput]=useState("");
-  const [teacherPwError,setTeacherPwError]=useState(false);
+  const [teacherPw,setTeacherPw]=useState("");
+  const [teacherErr,setTeacherErr]=useState(false);
   const mediaRef=useRef(null);
   const chunksRef=useRef([]);
   const fileRef=useRef(null);
@@ -323,9 +559,9 @@ function App(){
     setStudent(n);setScreen("stages");setLoading(false);
   }
 
-  function tryTeacherLogin(){
-    if(teacherPwInput===TEACHER_PW){setScreen("teacher");}
-    else{setTeacherPwError(true);setTimeout(()=>setTeacherPwError(false),1500);}
+  function tryTeacher(){
+    if(teacherPw===TEACHER_PW){setScreen("teacher");}
+    else{setTeacherErr(true);setTimeout(()=>setTeacherErr(false),1500);}
   }
 
   async function saveDone(n,d){
@@ -342,27 +578,45 @@ function App(){
       const mr=new MediaRecorder(stream);
       mediaRef.current=mr;chunksRef.current=[];
       mr.ondataavailable=e=>chunksRef.current.push(e.data);
-      mr.onstop=()=>{const blob=new Blob(chunksRef.current,{type:"audio/webm"});setAudioURLs(p=>({...p,[selTask.id]:URL.createObjectURL(blob)}));stream.getTracks().forEach(t=>t.stop());};
+      mr.onstop=()=>{
+        const blob=new Blob(chunksRef.current,{type:"audio/webm"});
+        setAudioBlob(blob);
+        setAudioURL(URL.createObjectURL(blob));
+        stream.getTracks().forEach(t=>t.stop());
+      };
       mr.start();setRecording(true);
     }catch{alert("마이크 권한을 허용해 주세요.");}
   }
   function stopRec(){mediaRef.current?.stop();setRecording(false);}
-  function handleFile(e){const f=e.target.files[0];if(!f)return;setAudioURLs(p=>({...p,[selTask.id]:URL.createObjectURL(f)}));setUploaded(p=>({...p,[selTask.id]:f.name}));}
+
+  function handleFile(e){
+    const f=e.target.files[0];if(!f)return;
+    setAudioBlob(f);
+    setAudioURL(URL.createObjectURL(f));
+  }
 
   async function submit(){
+    setUploading(true);
+    let uploadedURL=null;
+    if(audioBlob){
+      try{
+        uploadedURL=await window._upload(`audio/${student}/task_${selTask.id}.webm`,audioBlob);
+        await window._fbSet(`students/${student}/audio/task_${selTask.id}`,uploadedURL);
+      }catch(e){console.error("upload error",e);}
+    }
     const nd={...done,[`task_${selTask.id}`]:true};
     await saveDone(student,nd);
-    setCongrats(true);setConfetti(true);setTimeout(()=>setConfetti(false),3000);
+    setUploading(false);
+    setCongrats(true);setConfetti(true);
+    setTimeout(()=>setConfetti(false),3000);
   }
 
   const stDone=(sid)=>TASKS.filter(t=>t.stage===sid&&isDone(t.id)).length;
   const stTot=(sid)=>TASKS.filter(t=>t.stage===sid).length;
   const totalDone=TASKS.filter(t=>isDone(t.id)).length;
-  const hasAudio=selTask&&audioURLs[selTask.id];
 
   if(screen==="teacher")return <TeacherDashboard onBack={()=>setScreen("login")}/>;
 
-  // LOGIN
   if(screen==="login")return(
     <div style={{minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:24}}>
       <Logo/>
@@ -380,27 +634,20 @@ function App(){
           {loading?"불러오는 중...":"시작하기 →"}
         </button>
         <div style={{borderTop:"1px solid #f0f0f0",paddingTop:16}}>
-          <div style={{fontSize:12,color:"#aaa",textAlign:"center",marginBottom:10}}>선생님이신가요?</div>
+          <div style={{fontSize:12,color:"#aaa",textAlign:"center",marginBottom:8}}>선생님이신가요?</div>
           <div style={{display:"flex",gap:8}}>
-            <input value={teacherPwInput} onChange={e=>setTeacherPwInput(e.target.value)}
-              onKeyDown={e=>e.key==="Enter"&&tryTeacherLogin()}
+            <input value={teacherPw} onChange={e=>setTeacherPw(e.target.value)} onKeyDown={e=>e.key==="Enter"&&tryTeacher()}
               placeholder="선생님 비밀번호" type="password"
-              style={{flex:1,padding:"10px 14px",borderRadius:10,border:`1.5px solid ${teacherPwError?"#e53935":"#e0e0e0"}`,fontSize:14}}/>
-            <button onClick={tryTeacherLogin}
-              style={{padding:"10px 16px",borderRadius:10,background:"#333",color:"white",border:"none",fontSize:13,fontWeight:600}}>
-              입장
-            </button>
+              style={{flex:1,padding:"10px 14px",borderRadius:10,border:`1.5px solid ${teacherErr?"#e53935":"#e0e0e0"}`,fontSize:14}}/>
+            <button onClick={tryTeacher} style={{padding:"10px 16px",borderRadius:10,background:"#333",color:"white",border:"none",fontSize:13,fontWeight:600}}>입장</button>
           </div>
-          {teacherPwError&&<div style={{fontSize:12,color:"#e53935",marginTop:6,textAlign:"center"}}>비밀번호가 틀렸어요!</div>}
+          {teacherErr&&<div style={{fontSize:12,color:"#e53935",marginTop:6,textAlign:"center"}}>비밀번호가 틀렸어요!</div>}
         </div>
-        <div style={{marginTop:12,fontSize:12,color:"#aaa",textAlign:"center"}}>
-          📱 어느 기기에서나 같은 이름으로 접속하면 진도가 유지돼요
-        </div>
+        <div style={{marginTop:12,fontSize:12,color:"#aaa",textAlign:"center"}}>📱 어느 기기에서나 같은 이름으로 접속하면 진도가 유지돼요</div>
       </div>
     </div>
   );
 
-  // STAGES
   if(screen==="stages")return(
     <div style={{minHeight:"100vh",paddingBottom:40}}>
       <Logo/>
@@ -442,17 +689,13 @@ function App(){
           );
         })}
         <button onClick={()=>{setScreen("login");setStudent(null);setName("");setDone({});}}
-          style={{marginTop:8,padding:10,borderRadius:10,background:"white",color:"#888",border:"1px solid #e0e0e0",fontSize:13,width:"100%"}}>
-          로그아웃
-        </button>
+          style={{marginTop:8,padding:10,borderRadius:10,background:"white",color:"#888",border:"1px solid #e0e0e0",fontSize:13,width:"100%"}}>로그아웃</button>
       </div>
     </div>
   );
 
-  // TASK LIST
   if(screen==="list"){
     const st=STAGES.find(s=>s.id===selStage);
-    const tasks=TASKS.filter(t=>t.stage===selStage);
     return(
       <div style={{minHeight:"100vh",paddingBottom:40}}>
         <Logo/>
@@ -462,14 +705,12 @@ function App(){
             <span style={{background:st.bg,color:st.color,borderRadius:8,padding:"4px 12px",fontSize:13,fontWeight:600}}>{st.name}</span>
             <span style={{fontSize:16,fontWeight:600,color:"#333"}}>{st.label}</span>
           </div>
-          {tasks.map((task,idx)=>{
+          {TASKS.filter(t=>t.stage===selStage).map((task,idx)=>{
             const d2=isDone(task.id);
             return(
-              <div key={task.id} onClick={()=>{setSelTask(task);setShowMeaning({});setScreen("task");}}
+              <div key={task.id} onClick={()=>{setSelTask(task);setShowMeaning({});setAudioBlob(null);setAudioURL(null);setScreen("task");}}
                 style={{background:"white",borderRadius:14,padding:"14px 18px",marginBottom:10,boxShadow:"0 2px 10px rgba(0,0,0,0.05)",cursor:"pointer",border:`1.5px solid ${d2?"#4CAF50":"#f0f0f0"}`,display:"flex",alignItems:"center",gap:14}}>
-                <div style={{width:36,height:36,borderRadius:10,background:d2?"#E8F5E9":st.bg,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:14,color:d2?"#2E7D32":st.color,flexShrink:0}}>
-                  {d2?"✓":idx+1}
-                </div>
+                <div style={{width:36,height:36,borderRadius:10,background:d2?"#E8F5E9":st.bg,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:14,color:d2?"#2E7D32":st.color,flexShrink:0}}>{d2?"✓":idx+1}</div>
                 <div style={{flex:1}}>
                   <div style={{fontSize:14,fontWeight:600,color:"#333"}}>{task.title}</div>
                   <div style={{fontSize:12,color:"#888",marginTop:2}}>{task.words.map(x=>x.w).join(", ")}</div>
@@ -483,7 +724,6 @@ function App(){
     );
   }
 
-  // TASK DETAIL
   if(screen==="task"&&selTask){
     const st=STAGES.find(s=>s.id===selTask.stage);
     return(
@@ -500,16 +740,16 @@ function App(){
             <div style={{fontSize:19,fontWeight:700,color:"#222",marginBottom:8}}>{selTask.title}</div>
             <div style={{fontSize:13,color:"#666",background:"#faf7f5",borderRadius:10,padding:12,lineHeight:1.6}}>💡 {selTask.tip}</div>
           </div>
+
           <div style={{background:"white",borderRadius:20,padding:22,boxShadow:"0 2px 16px rgba(0,0,0,0.06)",marginBottom:14}}>
             <div style={{fontSize:15,fontWeight:600,color:"#333",marginBottom:4}}>🔊 원어민 발음 듣기</div>
-            <div style={{fontSize:12,color:"#888",marginBottom:12}}>단어를 누르면 발음 듣기 · <span style={{color:C.primary}}>뜻 보기</span>를 누르면 한국어 뜻이 나와요!</div>
+            <div style={{fontSize:12,color:"#888",marginBottom:12}}>단어 클릭 → 발음 듣기 · 뜻 보기 클릭 → 한국어 뜻</div>
             <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:14}}>
               {selTask.words.map((item,i)=>(
                 <div key={i} style={{display:"flex",alignItems:"center",gap:8}}>
                   <button onClick={()=>{setPlayWord(item.w);spk(item.w);setTimeout(()=>setPlayWord(null),1200);}}
                     style={{flex:1,padding:"10px 16px",borderRadius:14,background:playWord===item.w?st.color:st.bg,color:playWord===item.w?"white":st.color,border:`1.5px solid ${st.color}`,fontSize:16,fontWeight:700,textAlign:"left",display:"flex",alignItems:"center",gap:8,transition:"all 0.2s"}}>
-                    <span>{item.w}</span>
-                    <span style={{fontSize:12,opacity:0.7}}>{playWord===item.w?"🔉":"🔊"}</span>
+                    <span>{item.w}</span><span style={{fontSize:12,opacity:0.7}}>{playWord===item.w?"🔉":"🔊"}</span>
                   </button>
                   <button onClick={()=>setShowMeaning(p=>({...p,[item.w]:!p[item.w]}))}
                     style={{padding:"10px 14px",borderRadius:14,background:showMeaning[item.w]?"#FFF9C4":"#f5f5f5",color:showMeaning[item.w]?"#795548":"#666",border:"1.5px solid #e0e0e0",fontSize:13,fontWeight:600,minWidth:60,whiteSpace:"nowrap"}}>
@@ -520,6 +760,7 @@ function App(){
             </div>
             <button onClick={()=>spkAll(selTask.words)} style={{padding:"10px 20px",borderRadius:12,background:st.color,color:"white",border:"none",fontSize:13,fontWeight:600,width:"100%"}}>▶ 전체 단어 순서대로 듣기</button>
           </div>
+
           <div style={{background:"white",borderRadius:20,padding:22,boxShadow:"0 2px 16px rgba(0,0,0,0.06)",marginBottom:14}}>
             <div style={{fontSize:15,fontWeight:600,color:"#333",marginBottom:14}}>🎤 음성 제출</div>
             <div style={{fontSize:13,color:"#888",marginBottom:8}}>방법 1 · 직접 녹음하기</div>
@@ -531,23 +772,24 @@ function App(){
             <div style={{fontSize:13,color:"#888",marginBottom:8}}>방법 2 · 파일 업로드하기</div>
             <input ref={fileRef} type="file" accept="audio/*" onChange={handleFile} style={{display:"none"}}/>
             <button onClick={()=>fileRef.current?.click()} style={{padding:12,borderRadius:12,background:"#f5f5f5",color:"#444",border:"1px solid #e0e0e0",fontSize:14,width:"100%"}}>📁 음성 파일 업로드</button>
-            {uploaded[selTask.id]&&<div style={{fontSize:12,color:"#888",marginTop:6}}>📎 {uploaded[selTask.id]}</div>}
-            {audioURLs[selTask.id]&&(
+            {audioURL&&(
               <div style={{background:C.light,borderRadius:12,padding:14,marginTop:14}}>
                 <div style={{fontSize:13,color:C.primary,fontWeight:600,marginBottom:8}}>🎵 제출 음성 미리듣기</div>
-                <audio src={audioURLs[selTask.id]} controls/>
+                <audio src={audioURL} controls/>
               </div>
             )}
             <div style={{marginTop:16}}>
               {!isDone(selTask.id)
-                ?<button onClick={submit} disabled={!hasAudio} style={{padding:14,borderRadius:12,background:hasAudio?C.primary:"#ccc",color:"white",border:"none",fontSize:15,fontWeight:700,width:"100%",cursor:hasAudio?"pointer":"not-allowed"}}>
-                    {hasAudio?"✅ 숙제 제출하기!":"음성을 먼저 녹음하거나 업로드해주세요"}
+                ?<button onClick={submit} disabled={!audioURL||uploading}
+                    style={{padding:14,borderRadius:12,background:audioURL&&!uploading?C.primary:"#ccc",color:"white",border:"none",fontSize:15,fontWeight:700,width:"100%",cursor:audioURL&&!uploading?"pointer":"not-allowed"}}>
+                    {uploading?"📤 업로드 중...":audioURL?"✅ 숙제 제출하기!":"음성을 먼저 녹음하거나 업로드해주세요"}
                   </button>
                 :<div style={{textAlign:"center",padding:14,background:"#e8f5e9",borderRadius:12,color:"#2e7d32",fontWeight:600,fontSize:15}}>✅ 이미 완료한 숙제입니다!</div>
               }
             </div>
           </div>
         </div>
+
         {congrats&&(
           <div style={{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000}}>
             <div style={{background:"white",borderRadius:24,padding:36,maxWidth:320,width:"90%",textAlign:"center",animation:"popIn 0.3s ease"}}>
