@@ -581,18 +581,37 @@ function App(){
 
   async function submit(){
     setUploading(true);
-    let uploadedURL=null;
     if(audioBlob){
       try{
-        uploadedURL=await window._upload(`audio/${student}/task_${selTask.id}.webm`,audioBlob);
-        await window._fbSet(`students/${student}/audio/task_${selTask.id}`,uploadedURL);
-      }catch(e){console.error("upload error",e);}
+        // base64로 변환해서 Firebase Realtime DB에 저장 (Storage CORS 우회)
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        reader.onloadend = async ()=>{
+          try{
+            const base64 = reader.result;
+            await window._fbSet(`students/${student}/audio/task_${selTask.id}`, base64);
+          }catch(e){console.error("audio save error",e);}
+          const nd={...done,[`task_${selTask.id}`]:true};
+          await saveDone(student,nd);
+          setUploading(false);
+          setCongrats(true);setConfetti(true);
+          setTimeout(()=>setConfetti(false),3000);
+        };
+      }catch(e){
+        console.error("upload error",e);
+        const nd={...done,[`task_${selTask.id}`]:true};
+        await saveDone(student,nd);
+        setUploading(false);
+        setCongrats(true);setConfetti(true);
+        setTimeout(()=>setConfetti(false),3000);
+      }
+    } else {
+      const nd={...done,[`task_${selTask.id}`]:true};
+      await saveDone(student,nd);
+      setUploading(false);
+      setCongrats(true);setConfetti(true);
+      setTimeout(()=>setConfetti(false),3000);
     }
-    const nd={...done,[`task_${selTask.id}`]:true};
-    await saveDone(student,nd);
-    setUploading(false);
-    setCongrats(true);setConfetti(true);
-    setTimeout(()=>setConfetti(false),3000);
   }
 
   const stDone=(sid)=>TASKS.filter(t=>t.stage===sid&&isDone(t.id)).length;
@@ -763,12 +782,15 @@ function App(){
               </div>
             )}
             <div style={{marginTop:16}}>
-              {!isDone(selTask.id)
-                ?<button onClick={submit} disabled={!audioURL||uploading}
-                    style={{padding:14,borderRadius:12,background:audioURL&&!uploading?C.primary:"#ccc",color:"white",border:"none",fontSize:15,fontWeight:700,width:"100%",cursor:audioURL&&!uploading?"pointer":"not-allowed"}}>
-                    {uploading?"📤 업로드 중...":audioURL?"✅ 숙제 제출하기!":"음성을 먼저 녹음하거나 업로드해주세요"}
+              {/* 완료 여부 상관없이 음성 있으면 항상 제출 가능 */}
+              {audioURL
+                ?<button onClick={submit} disabled={uploading}
+                    style={{padding:14,borderRadius:12,background:!uploading?C.primary:"#ccc",color:"white",border:"none",fontSize:15,fontWeight:700,width:"100%",cursor:!uploading?"pointer":"not-allowed"}}>
+                    {uploading?"📤 업로드 중...":"✅ 숙제 제출하기!"}
                   </button>
-                :<div style={{textAlign:"center",padding:14,background:"#e8f5e9",borderRadius:12,color:"#2e7d32",fontWeight:600,fontSize:15}}>✅ 이미 완료한 숙제입니다!</div>
+                : isDone(selTask.id)
+                  ?<div style={{textAlign:"center",padding:14,background:"#e8f5e9",borderRadius:12,color:"#2e7d32",fontWeight:600,fontSize:15}}>✅ 완료! 새 음성을 녹음하거나 업로드해서 다시 제출할 수 있어요</div>
+                  :<div style={{textAlign:"center",padding:14,background:"#f5f5f5",borderRadius:12,color:"#888",fontSize:14}}>음성을 먼저 녹음하거나 업로드해주세요</div>
               }
             </div>
           </div>
