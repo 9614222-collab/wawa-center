@@ -7,6 +7,7 @@
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -305,6 +306,15 @@ function ParentReport({student, studentData, onClose}){
 
       {/* 버튼 */}
       <div style={{maxWidth:680,margin:"16px auto",display:"flex",gap:10}} className="no-print">
+        <button onClick={()=>{
+          const el=document.getElementById("report");
+          html2canvas(el,{scale:2,useCORS:true,backgroundColor:"#ffffff"}).then(canvas=>{
+            const link=document.createElement("a");
+            link.download=`${student}_파닉스보고서.png`;
+            link.href=canvas.toDataURL("image/png");
+            link.click();
+          });
+        }} style={{flex:1,padding:14,borderRadius:12,background:"#2E7D32",color:"white",border:"none",fontSize:14,fontWeight:600}}>🖼️ 이미지로 저장</button>
         <button onClick={()=>window.print()} style={{flex:1,padding:14,borderRadius:12,background:C.primary,color:"white",border:"none",fontSize:14,fontWeight:600}}>🖨️ 인쇄 / PDF 저장</button>
         <button onClick={onClose} style={{flex:1,padding:14,borderRadius:12,background:"white",color:"#666",border:"1px solid #e0e0e0",fontSize:14,fontWeight:600}}>닫기</button>
       </div>
