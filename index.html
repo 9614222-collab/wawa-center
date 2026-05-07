@@ -63,44 +63,83 @@ const STAGES=[
   {id:5,name:"Stage 5",label:"자음 블렌드",color:"#E65100",bg:"#FFF3E0"},
   {id:6,name:"Stage 6",label:"다이그래프",color:"#00695C",bg:"#E0F2F1"},
   {id:7,name:"Stage 7",label:"R통제모음·복합패턴",color:"#4527A0",bg:"#EDE7F6"},
+  {id:8,name:"Stage 8",label:"접두사·접미사",color:"#6D4C41",bg:"#EFEBE9"},
+  {id:9,name:"Stage 9",label:"불규칙 단어",color:"#00838F",bg:"#E0F7FA"},
+  {id:10,name:"Stage 10",label:"다음절 단어",color:"#558B2F",bg:"#F1F8E9"},
+  {id:11,name:"Stage 11",label:"문장 읽기",color:"#283593",bg:"#E8EAF6"},
 ];
 
 const TASKS=[
+  // ── Stage 1 ──
   {id:1,stage:1,title:"Alphabet Sounds A–E",words:[{w:"apple",m:"사과"},{w:"ant",m:"개미"},{w:"egg",m:"달걀"},{w:"elf",m:"요정"},{w:"arm",m:"팔"}],tip:"각 알파벳의 '짧은' 소리에 집중하세요."},
   {id:2,stage:1,title:"Alphabet Sounds F–J",words:[{w:"fan",m:"선풍기"},{w:"fog",m:"안개"},{w:"gun",m:"총"},{w:"hat",m:"모자"},{w:"jam",m:"잼"}],tip:"입 모양을 거울로 보면서 따라해 보세요."},
   {id:3,stage:1,title:"Alphabet Sounds K–O",words:[{w:"kite",m:"연"},{w:"leg",m:"다리"},{w:"map",m:"지도"},{w:"net",m:"그물"},{w:"odd",m:"이상한"}],tip:"소리를 길게 늘이지 말고 짧게 끊어요."},
   {id:4,stage:1,title:"Alphabet Sounds P–T",words:[{w:"pig",m:"돼지"},{w:"quit",m:"그만두다"},{w:"run",m:"달리다"},{w:"sit",m:"앉다"},{w:"top",m:"팽이"}],tip:"p·b·t·d 헷갈리지 않게 천천히!"},
   {id:5,stage:1,title:"Alphabet Sounds U–Z",words:[{w:"up",m:"위"},{w:"van",m:"밴"},{w:"win",m:"이기다"},{w:"fox",m:"여우"},{w:"yes",m:"응"},{w:"zip",m:"지퍼"}],tip:"x는 'ks' 소리임을 기억하세요."},
+  // ── Stage 2 ──
   {id:6,stage:2,title:"Short A – CVC Words",words:[{w:"cat",m:"고양이"},{w:"bat",m:"방망이"},{w:"hat",m:"모자"},{w:"man",m:"남자"},{w:"ran",m:"달렸다"},{w:"pan",m:"냄비"}],tip:"가운데 'a'를 짧고 강하게 발음해요."},
   {id:7,stage:2,title:"Short E – CVC Words",words:[{w:"bed",m:"침대"},{w:"red",m:"빨간"},{w:"pen",m:"펜"},{w:"hen",m:"암탉"},{w:"ten",m:"10"},{w:"wet",m:"젖은"}],tip:"'e'는 입을 옆으로 살짝 당겨요."},
   {id:8,stage:2,title:"Short I – CVC Words",words:[{w:"sit",m:"앉다"},{w:"bit",m:"조금"},{w:"him",m:"그를"},{w:"fin",m:"지느러미"},{w:"win",m:"이기다"},{w:"lip",m:"입술"}],tip:"'i'는 짧고 빠르게 '이'!"},
   {id:9,stage:2,title:"Short O – CVC Words",words:[{w:"hot",m:"뜨거운"},{w:"dot",m:"점"},{w:"log",m:"통나무"},{w:"hop",m:"깡충뛰다"},{w:"top",m:"팽이"},{w:"cod",m:"대구"}],tip:"'o'는 입을 동그랗게 벌려요."},
   {id:10,stage:2,title:"Short U – CVC Words",words:[{w:"cup",m:"컵"},{w:"bug",m:"벌레"},{w:"run",m:"달리다"},{w:"sun",m:"태양"},{w:"mud",m:"진흙"},{w:"tub",m:"욕조"}],tip:"'u'는 한국어 '어'에 가까워요."},
+  // ── Stage 3 ──
   {id:11,stage:3,title:"Long A – Silent E",words:[{w:"cake",m:"케이크"},{w:"lake",m:"호수"},{w:"name",m:"이름"},{w:"game",m:"게임"},{w:"tape",m:"테이프"},{w:"came",m:"왔다"}],tip:"끝 e는 소리 안 나고 앞 모음을 길게 만들어요."},
   {id:12,stage:3,title:"Long E – EE / EA",words:[{w:"feet",m:"발들"},{w:"keep",m:"유지하다"},{w:"seed",m:"씨앗"},{w:"meat",m:"고기"},{w:"read",m:"읽다"},{w:"team",m:"팀"}],tip:"'ee'와 'ea' 모두 긴 E 소리예요."},
   {id:13,stage:3,title:"Long I – Silent E",words:[{w:"kite",m:"연"},{w:"mine",m:"내것"},{w:"ride",m:"타다"},{w:"hide",m:"숨다"},{w:"time",m:"시간"},{w:"pipe",m:"파이프"}],tip:"i_e 패턴: 사이 자음이 있어요."},
   {id:14,stage:3,title:"Long O – OA / OE",words:[{w:"home",m:"집"},{w:"bone",m:"뼈"},{w:"boat",m:"배"},{w:"coat",m:"코트"},{w:"toe",m:"발가락"},{w:"hoe",m:"괭이"}],tip:"'oa'는 두 글자가 하나의 소리예요."},
   {id:15,stage:3,title:"Long U – Silent E",words:[{w:"cube",m:"정육면체"},{w:"tune",m:"곡조"},{w:"mule",m:"노새"},{w:"dune",m:"모래언덕"},{w:"cute",m:"귀여운"},{w:"tube",m:"튜브"}],tip:"'u_e'는 '유' 또는 '우' 두 가지로 날 수 있어요."},
+  // ── Stage 4 ──
   {id:16,stage:4,title:"Vowel Teams: AI / AY",words:[{w:"rain",m:"비"},{w:"tail",m:"꼬리"},{w:"main",m:"주요한"},{w:"day",m:"날"},{w:"play",m:"놀다"},{w:"stay",m:"머물다"}],tip:"'ai'는 단어 중간, 'ay'는 단어 끝에 와요."},
   {id:17,stage:4,title:"Vowel Teams: OI / OY",words:[{w:"coin",m:"동전"},{w:"soil",m:"흙"},{w:"boy",m:"소년"},{w:"toy",m:"장난감"},{w:"join",m:"참여하다"},{w:"oil",m:"기름"}],tip:"'oi/oy'는 '오이' 느낌으로 이중발음!"},
   {id:18,stage:4,title:"Vowel Teams: OO",words:[{w:"moon",m:"달"},{w:"food",m:"음식"},{w:"book",m:"책"},{w:"look",m:"보다"},{w:"cool",m:"시원한"},{w:"foot",m:"발"}],tip:"'oo'는 길게(moon)와 짧게(book) 두 가지."},
   {id:19,stage:4,title:"Vowel Teams: OU / OW",words:[{w:"out",m:"밖에"},{w:"cloud",m:"구름"},{w:"cow",m:"소"},{w:"down",m:"아래"},{w:"town",m:"마을"},{w:"loud",m:"시끄러운"}],tip:"'ou/ow'는 '아우' 이중모음이에요."},
   {id:20,stage:4,title:"Vowel Teams: EW / UE",words:[{w:"new",m:"새로운"},{w:"dew",m:"이슬"},{w:"blue",m:"파란"},{w:"clue",m:"단서"},{w:"true",m:"사실인"},{w:"flew",m:"날았다"}],tip:"'ew/ue'는 긴 U 소리예요."},
+  // ── Stage 5 ──
   {id:21,stage:5,title:"Blends: BL, CL, FL",words:[{w:"blue",m:"파란"},{w:"clap",m:"박수치다"},{w:"flag",m:"깃발"},{w:"black",m:"검은"},{w:"cloud",m:"구름"},{w:"flat",m:"평평한"}],tip:"두 자음을 붙여서 빠르게 발음해요."},
   {id:22,stage:5,title:"Blends: ST, SP, SN",words:[{w:"stop",m:"멈추다"},{w:"spin",m:"돌다"},{w:"snap",m:"딱"},{w:"star",m:"별"},{w:"spell",m:"철자쓰다"},{w:"snack",m:"간식"}],tip:"s 뒤 자음을 또렷이 살려요."},
   {id:23,stage:5,title:"Blends: TR, DR, GR",words:[{w:"tree",m:"나무"},{w:"drop",m:"떨어뜨리다"},{w:"grip",m:"잡다"},{w:"tray",m:"쟁반"},{w:"draw",m:"그리다"},{w:"grass",m:"풀"}],tip:"r 앞 자음을 약하게 흘려요."},
   {id:24,stage:5,title:"Blends: SK, SC, SL",words:[{w:"skip",m:"건너뛰다"},{w:"scar",m:"흉터"},{w:"slim",m:"날씬한"},{w:"skill",m:"기술"},{w:"scam",m:"사기"},{w:"slide",m:"미끄럼틀"}],tip:"끝소리도 정확하게 끊어요."},
   {id:25,stage:5,title:"Final Blends: –ND, –NT",words:[{w:"sand",m:"모래"},{w:"bend",m:"구부리다"},{w:"mint",m:"민트"},{w:"hunt",m:"사냥하다"},{w:"pond",m:"연못"},{w:"lend",m:"빌려주다"}],tip:"끝 자음 두 개를 모두 발음해요."},
+  // ── Stage 6 ──
   {id:26,stage:6,title:"Digraph: SH",words:[{w:"shop",m:"가게"},{w:"ship",m:"배"},{w:"fish",m:"물고기"},{w:"shoe",m:"신발"},{w:"dash",m:"달리다"},{w:"wish",m:"소원"}],tip:"'sh'는 '쉬~' 입술을 앞으로 내밀어요."},
   {id:27,stage:6,title:"Digraph: CH",words:[{w:"chip",m:"칩"},{w:"chat",m:"대화"},{w:"lunch",m:"점심"},{w:"beach",m:"해변"},{w:"chop",m:"자르다"},{w:"rich",m:"부유한"}],tip:"'ch'는 '취~' 혀를 입천장에 붙였다 떼요."},
   {id:28,stage:6,title:"Digraph: TH (voiced)",words:[{w:"that",m:"저것"},{w:"this",m:"이것"},{w:"them",m:"그들을"},{w:"then",m:"그때"},{w:"those",m:"저것들"},{w:"bathe",m:"목욕하다"}],tip:"유성 th: 혀를 이 사이에 넣고 진동시켜요."},
   {id:29,stage:6,title:"Digraph: TH (voiceless)",words:[{w:"thin",m:"얇은"},{w:"three",m:"셋"},{w:"think",m:"생각하다"},{w:"thumb",m:"엄지"},{w:"bath",m:"목욕"},{w:"both",m:"둘다"}],tip:"무성 th: 혀를 이 사이에 넣고 바람만 내요."},
   {id:30,stage:6,title:"Digraph: WH / PH",words:[{w:"when",m:"언제"},{w:"where",m:"어디"},{w:"whale",m:"고래"},{w:"phone",m:"전화"},{w:"photo",m:"사진"},{w:"graph",m:"그래프"}],tip:"'wh'≈w 소리, 'ph'=f 소리예요."},
+  // ── Stage 7 ──
   {id:31,stage:7,title:"R-Controlled: AR",words:[{w:"car",m:"자동차"},{w:"star",m:"별"},{w:"barn",m:"헛간"},{w:"farm",m:"농장"},{w:"hard",m:"단단한"},{w:"park",m:"공원"}],tip:"'ar'은 '아~r' 혀를 뒤로 말아요."},
   {id:32,stage:7,title:"R-Controlled: ER/IR/UR",words:[{w:"her",m:"그녀의"},{w:"bird",m:"새"},{w:"turn",m:"돌다"},{w:"burn",m:"타다"},{w:"fur",m:"털"},{w:"sir",m:"선생님"}],tip:"세 가지 모두 같은 소리예요."},
   {id:33,stage:7,title:"R-Controlled: OR",words:[{w:"for",m:"위해"},{w:"born",m:"태어난"},{w:"corn",m:"옥수수"},{w:"port",m:"항구"},{w:"storm",m:"폭풍"},{w:"short",m:"짧은"}],tip:"'or'은 '오~r' 느낌이에요."},
   {id:34,stage:7,title:"Soft C & G",words:[{w:"city",m:"도시"},{w:"cent",m:"센트"},{w:"page",m:"페이지"},{w:"gem",m:"보석"},{w:"race",m:"경주"},{w:"age",m:"나이"}],tip:"e·i·y 앞에서 c→s, g→j 소리로 바뀌어요."},
   {id:35,stage:7,title:"Silent Letters: KN, WR, GN",words:[{w:"kneel",m:"무릎꿇다"},{w:"write",m:"쓰다"},{w:"gnome",m:"난쟁이"},{w:"knock",m:"두드리다"},{w:"wrap",m:"싸다"},{w:"sign",m:"표지판"}],tip:"첫 자음이 묵음인 단어들이에요."},
+
+  // ── Stage 8: 접두사·접미사 ──
+  {id:36,stage:8,title:"Prefix: un-, re-",words:[{w:"unfair",m:"불공평한"},{w:"unlock",m:"열다"},{w:"rebuild",m:"재건하다"},{w:"return",m:"돌아오다"},{w:"unusual",m:"특이한"},{w:"review",m:"검토하다"}],tip:"un-은 '반대', re-는 '다시'라는 의미예요."},
+  {id:37,stage:8,title:"Prefix: pre-, dis-",words:[{w:"preview",m:"미리보기"},{w:"prepare",m:"준비하다"},{w:"disagree",m:"동의하지 않다"},{w:"discover",m:"발견하다"},{w:"predict",m:"예측하다"},{w:"dislike",m:"싫어하다"}],tip:"pre-는 '미리', dis-는 '부정·반대'를 뜻해요."},
+  {id:38,stage:8,title:"Suffix: -ful, -less",words:[{w:"careful",m:"조심스러운"},{w:"powerful",m:"강력한"},{w:"hopeless",m:"절망적인"},{w:"fearless",m:"두려움 없는"},{w:"peaceful",m:"평화로운"},{w:"endless",m:"끝없는"}],tip:"-ful은 '~가득', -less는 '~없는'이에요."},
+  {id:39,stage:8,title:"Suffix: -tion, -sion",words:[{w:"nation",m:"국가"},{w:"action",m:"행동"},{w:"tension",m:"긴장"},{w:"passion",m:"열정"},{w:"solution",m:"해결책"},{w:"decision",m:"결정"}],tip:"-tion/-sion은 '~하는 것·상태'를 나타내요."},
+  {id:40,stage:8,title:"Suffix: -ly, -ment",words:[{w:"quickly",m:"빠르게"},{w:"clearly",m:"명확하게"},{w:"movement",m:"움직임"},{w:"treatment",m:"치료"},{w:"slowly",m:"천천히"},{w:"agreement",m:"합의"}],tip:"-ly는 부사, -ment는 명사를 만들어요."},
+
+  // ── Stage 9: 불규칙 단어 (sight words) ──
+  {id:41,stage:9,title:"Sight Words: 동사 불규칙 1",words:[{w:"bought",m:"샀다 (buy)"},{w:"taught",m:"가르쳤다 (teach)"},{w:"thought",m:"생각했다 (think)"},{w:"caught",m:"잡았다 (catch)"},{w:"brought",m:"가져왔다 (bring)"}],tip:"철자와 발음이 다른 과거형이에요. 통째로 외워요!"},
+  {id:42,stage:9,title:"Sight Words: 동사 불규칙 2",words:[{w:"knew",m:"알았다 (know)"},{w:"grew",m:"자랐다 (grow)"},{w:"threw",m:"던졌다 (throw)"},{w:"drew",m:"그렸다 (draw)"},{w:"flew",m:"날았다 (fly)"}],tip:"'ew' 불규칙 과거형 묶음이에요."},
+  {id:43,stage:9,title:"Sight Words: 헷갈리는 단어",words:[{w:"through",m:"통해서"},{w:"though",m:"비록~이지만"},{w:"thorough",m:"철저한"},{w:"thought",m:"생각"},{w:"tough",m:"힘든"}],tip:"'ough' 철자가 다양한 소리로 나요. 주의!"},
+  {id:44,stage:9,title:"Sight Words: 고빈도 명사",words:[{w:"people",m:"사람들"},{w:"friend",m:"친구"},{w:"minute",m:"분"},{w:"island",m:"섬"},{w:"science",m:"과학"},{w:"business",m:"사업"}],tip:"묵음 철자에 주의하세요 (island의 s, minute의 e)."},
+  {id:45,stage:9,title:"Sight Words: 고빈도 형용사",words:[{w:"beautiful",m:"아름다운"},{w:"different",m:"다른"},{w:"important",m:"중요한"},{w:"special",m:"특별한"},{w:"difficult",m:"어려운"},{w:"possible",m:"가능한"}],tip:"소리나는 대로 쓰지 않는 경우가 많아요."},
+
+  // ── Stage 10: 다음절 단어 ──
+  {id:46,stage:10,title:"2음절 단어: 앞 강세",words:[{w:"garden",m:"정원"},{w:"mirror",m:"거울"},{w:"pencil",m:"연필"},{w:"basket",m:"바구니"},{w:"doctor",m:"의사"},{w:"rocket",m:"로켓"}],tip:"첫 음절을 강하게, 두 번째는 약하게 읽어요."},
+  {id:47,stage:10,title:"2음절 단어: 뒤 강세",words:[{w:"balloon",m:"풍선"},{w:"career",m:"직업"},{w:"police",m:"경찰"},{w:"mistake",m:"실수"},{w:"alone",m:"혼자"},{w:"complete",m:"완전한"}],tip:"두 번째 음절을 더 강하게 읽어요."},
+  {id:48,stage:10,title:"3음절 단어",words:[{w:"tomorrow",m:"내일"},{w:"remember",m:"기억하다"},{w:"important",m:"중요한"},{w:"community",m:"공동체"},{w:"telephone",m:"전화기"},{w:"beautiful",m:"아름다운"}],tip:"음절을 나눠서 천천히: to-mor-row."},
+  {id:49,stage:10,title:"4음절 단어",words:[{w:"information",m:"정보"},{w:"education",m:"교육"},{w:"examination",m:"시험"},{w:"introduction",m:"소개"},{w:"communication",m:"소통"}],tip:"강세 위치에 집중하세요: in-for-MA-tion."},
+  {id:50,stage:10,title:"복합어 읽기",words:[{w:"sunflower",m:"해바라기"},{w:"blackboard",m:"칠판"},{w:"butterfly",m:"나비"},{w:"homework",m:"숙제"},{w:"rainbow",m:"무지개"},{w:"birthday",m:"생일"}],tip:"두 단어가 합쳐진 복합어예요. 앞 단어에 강세!"},
+
+  // ── Stage 11: 문장 읽기 ──
+  {id:51,stage:11,title:"문장 읽기: 현재 시제",words:[{w:"I go to school every day.",m:"나는 매일 학교에 가요."},{w:"She reads books at night.",m:"그녀는 밤에 책을 읽어요."},{w:"They play soccer on weekends.",m:"그들은 주말에 축구해요."}],tip:"주어+동사 순서로 또렷하게 읽어요."},
+  {id:52,stage:11,title:"문장 읽기: 과거 시제",words:[{w:"We visited the museum yesterday.",m:"우리는 어제 박물관에 갔어요."},{w:"He finished his homework early.",m:"그는 숙제를 일찍 끝냈어요."},{w:"It rained all morning.",m:"아침 내내 비가 왔어요."}],tip:"과거형 동사 발음에 집중하세요. (-ed 끝소리)"},
+  {id:53,stage:11,title:"문장 읽기: 의문문",words:[{w:"What time does the train arrive?",m:"기차는 몇 시에 도착하나요?"},{w:"Where did you find that book?",m:"그 책을 어디서 찾았나요?"},{w:"How long have you studied English?",m:"영어를 얼마나 오래 공부했나요?"}],tip:"의문문은 끝을 올리거나 내려서 읽어요."},
+  {id:54,stage:11,title:"문장 읽기: 복문",words:[{w:"Although it was cold, she went outside.",m:"추웠지만 그녀는 밖에 나갔어요."},{w:"He studies hard because he wants to succeed.",m:"성공하고 싶어서 열심히 공부해요."},{w:"If you practice daily, you will improve.",m:"매일 연습하면 실력이 늘 거예요."}],tip:"접속사(although, because, if)에서 살짝 쉬어요."},
+  {id:55,stage:11,title:"문장 읽기: 표현 문장",words:[{w:"Could you please help me with this?",m:"이것 좀 도와주시겠어요?"},{w:"I'm looking forward to seeing you.",m:"만나뵙기를 기대하고 있어요."},{w:"It's important to keep trying.",m:"계속 시도하는 것이 중요해요."}],tip:"자연스러운 억양으로 전체 문장을 흘려 읽어요."},
 ];
 
 function Logo(){
@@ -148,62 +187,50 @@ function spkAll(words){
   window.speechSynthesis.getVoices().length>0?go():(window.speechSynthesis.onvoiceschanged=()=>{go();window.speechSynthesis.onvoiceschanged=null;});
 }
 
-// 발음 분석 (Web Speech Recognition)
-function analyzeAccuracy(words, onResult){
-  const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+function analyzeAccuracy(words,onResult){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){onResult(null,"이 브라우저는 발음 분석을 지원하지 않아요. Chrome을 사용해주세요.");return null;}
-  const r=new SR();
-  r.lang="en-US";r.continuous=false;r.interimResults=false;
+  const r=new SR();r.lang="en-US";r.continuous=false;r.interimResults=false;
   r.onresult=(e)=>{
     const said=e.results[0][0].transcript.toLowerCase().trim();
     const expected=words.map(w=>w.w.toLowerCase()).join(" ");
-    const saidWords=said.split(/\s+/);
-    const expWords=expected.split(/\s+/);
-    let correct=0;
-    expWords.forEach(w=>{if(saidWords.includes(w))correct++;});
+    const saidWords=said.split(/\s+/);const expWords=expected.split(/\s+/);
+    let correct=0;expWords.forEach(w=>{if(saidWords.includes(w))correct++;});
     const score=Math.round((correct/expWords.length)*100);
     onResult({score,said,expected,correct,total:expWords.length},null);
   };
   r.onerror=(e)=>onResult(null,"마이크 오류: "+e.error);
-  r.start();
-  return r;
+  r.start();return r;
 }
 
-// ── 학부모 보고서 ──
-function ParentReport({student, studentData, onClose}){
-  const done = studentData?.done||{};
-  const comments = studentData?.comments||{};
-  const totalDone = TASKS.filter(t=>done[`task_${t.id}`]).length;
-  const pct = Math.round(totalDone/TASKS.length*100);
-  const today = new Date().toLocaleDateString("ko-KR",{year:"numeric",month:"long",day:"numeric"});
-  const completedStages = STAGES.filter(st=>TASKS.filter(t=>t.stage===st.id).every(t=>done[`task_${t.id}`]));
-  const strongStages = STAGES.filter(st=>{
+function ParentReport({student,studentData,onClose}){
+  const done=studentData?.done||{};
+  const comments=studentData?.comments||{};
+  const totalDone=TASKS.filter(t=>done[`task_${t.id}`]).length;
+  const pct=Math.round(totalDone/TASKS.length*100);
+  const today=new Date().toLocaleDateString("ko-KR",{year:"numeric",month:"long",day:"numeric"});
+  const completedStages=STAGES.filter(st=>TASKS.filter(t=>t.stage===st.id).every(t=>done[`task_${t.id}`]));
+  const strongStages=STAGES.filter(st=>{
     const tot=TASKS.filter(t=>t.stage===st.id).length;
     const d=TASKS.filter(t=>t.stage===st.id&&done[`task_${t.id}`]).length;
     return d/tot>=0.6&&d/tot<1;
   });
-
-  const medals = pct===100?"🥇":pct>=80?"🥈":pct>=50?"🥉":"📚";
-  const overallComment = pct===100
-    ?"모든 파닉스 과정을 완벽하게 마스터했습니다! 영어 발음의 기초가 완성되었으며, 원어민에 가까운 소리를 낼 수 있는 탄탄한 기반을 갖추게 되었습니다."
-    :pct>=80
-    ?"파닉스 과정의 대부분을 훌륭히 완료했습니다. 꾸준한 노력 덕분에 영어 소리 규칙을 잘 익히고 있으며, 곧 완전한 마스터가 될 것입니다."
-    :pct>=50
-    ?"파닉스 과정의 절반 이상을 완료했습니다. 꾸준히 학습하고 있으며 영어 발음 향상에 좋은 진전을 보이고 있습니다."
-    :"파닉스 학습을 시작했습니다. 매일 조금씩 꾸준히 연습하면 빠르게 발전할 것입니다. 따뜻한 격려 부탁드립니다.";
+  const medals=pct===100?"🥇":pct>=80?"🥈":pct>=50?"🥉":"📚";
+  const overallComment=pct===100
+    ?"모든 파닉스 과정을 완벽하게 마스터했습니다! Stage 11 문장 읽기까지 완주한 것은 정말 대단한 성취예요."
+    :pct>=80?"파닉스 과정의 대부분을 훌륭히 완료했습니다. 꾸준한 노력 덕분에 영어 소리 규칙을 잘 익히고 있습니다."
+    :pct>=50?"파닉스 과정의 절반 이상을 완료했습니다. 꾸준히 학습하고 있으며 좋은 진전을 보이고 있습니다."
+    :"파닉스 학습을 시작했습니다. 매일 조금씩 꾸준히 연습하면 빠르게 발전할 것입니다.";
 
   return(
     <div style={{position:"fixed",top:0,left:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.6)",zIndex:2000,overflow:"auto",padding:20}}>
-              <div id="report" style={{background:"white",maxWidth:680,margin:"0 auto",borderRadius:20,overflow:"hidden",boxShadow:"0 8px 40px rgba(0,0,0,0.2)"}}>
-        {/* 헤더 */}
-        <div style={{background:`linear-gradient(135deg, ${C.primary}, #b84a1a)`,padding:"32px 36px",color:"white",textAlign:"center"}}>
+      <div id="report" style={{background:"white",maxWidth:680,margin:"0 auto",borderRadius:20,overflow:"hidden",boxShadow:"0 8px 40px rgba(0,0,0,0.2)"}}>
+        <div style={{background:`linear-gradient(135deg,${C.primary},#b84a1a)`,padding:"32px 36px",color:"white",textAlign:"center"}}>
           <div style={{fontSize:13,opacity:0.85,marginBottom:4,letterSpacing:2}}>와와학습코칭센터 · COACHING CENTER</div>
           <div style={{fontSize:26,fontWeight:700,marginBottom:4}}>Phonics 학습 성취 보고서</div>
           <div style={{fontSize:13,opacity:0.8}}>{today} 발행</div>
         </div>
-
         <div style={{padding:"28px 36px"}}>
-          {/* 학생 정보 */}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",background:"#faf7f5",borderRadius:16,padding:"20px 24px",marginBottom:24}}>
             <div>
               <div style={{fontSize:13,color:"#888",marginBottom:4}}>학생 이름</div>
@@ -214,8 +241,6 @@ function ParentReport({student, studentData, onClose}){
               <div style={{fontSize:12,color:"#888",marginTop:4}}>{pct===100?"완전 마스터":pct>=80?"우수":pct>=50?"양호":"진행중"}</div>
             </div>
           </div>
-
-          {/* 전체 달성률 */}
           <div style={{marginBottom:24}}>
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}>
               <div style={{fontSize:15,fontWeight:600,color:"#333"}}>전체 학습 달성률</div>
@@ -226,8 +251,6 @@ function ParentReport({student, studentData, onClose}){
             </div>
             <div style={{fontSize:13,color:"#888",marginTop:6}}>총 {TASKS.length}개 과제 중 {totalDone}개 완료</div>
           </div>
-
-          {/* 단계별 진도 */}
           <div style={{marginBottom:24}}>
             <div style={{fontSize:15,fontWeight:600,color:"#333",marginBottom:12}}>단계별 학습 현황</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
@@ -250,24 +273,12 @@ function ParentReport({student, studentData, onClose}){
               })}
             </div>
           </div>
-
-          {/* 선생님 총평 */}
           <div style={{background:"#faf7f5",borderRadius:16,padding:"20px 24px",marginBottom:24,borderLeft:`4px solid ${C.primary}`}}>
             <div style={{fontSize:14,fontWeight:600,color:C.primary,marginBottom:10}}>👩‍🏫 선생님 종합 평가</div>
             <div style={{fontSize:14,color:"#555",lineHeight:1.8}}>{overallComment}</div>
-            {completedStages.length>0&&(
-              <div style={{marginTop:10,fontSize:13,color:"#2E7D32"}}>
-                ✅ 완료 단계: {completedStages.map(s=>s.name).join(", ")}
-              </div>
-            )}
-            {strongStages.length>0&&(
-              <div style={{marginTop:6,fontSize:13,color:"#1565C0"}}>
-                📌 학습 중인 단계: {strongStages.map(s=>s.name).join(", ")}
-              </div>
-            )}
+            {completedStages.length>0&&<div style={{marginTop:10,fontSize:13,color:"#2E7D32"}}>✅ 완료 단계: {completedStages.map(s=>s.name).join(", ")}</div>}
+            {strongStages.length>0&&<div style={{marginTop:6,fontSize:13,color:"#1565C0"}}>📌 학습 중인 단계: {strongStages.map(s=>s.name).join(", ")}</div>}
           </div>
-
-          {/* 선생님 코멘트 */}
           {Object.keys(comments).length>0&&(
             <div style={{marginBottom:24}}>
               <div style={{fontSize:15,fontWeight:600,color:"#333",marginBottom:12}}>📝 과제별 선생님 피드백</div>
@@ -284,35 +295,25 @@ function ParentReport({student, studentData, onClose}){
               })}
             </div>
           )}
-
-          {/* 격려 메시지 */}
-          <div style={{background:`linear-gradient(135deg, ${C.light}, #fff)`,borderRadius:16,padding:"20px 24px",marginBottom:24,textAlign:"center"}}>
+          <div style={{background:`linear-gradient(135deg,${C.light},#fff)`,borderRadius:16,padding:"20px 24px",marginBottom:24,textAlign:"center"}}>
             <div style={{fontSize:20,marginBottom:8}}>💪</div>
             <div style={{fontSize:14,color:C.primary,fontWeight:600,marginBottom:6}}>{student} 학생에게 보내는 응원 메시지</div>
             <div style={{fontSize:13,color:"#666",lineHeight:1.8}}>
-              {pct===100
-                ?"파닉스 전 과정을 완주한 것은 정말 대단한 성취입니다! 이 기초를 바탕으로 영어 실력이 더욱 빛날 거예요. 앞으로도 자신감을 갖고 영어를 즐겨주세요! 🌟"
-                :"매일 조금씩 꾸준히 연습하는 모습이 정말 훌륭합니다! 포기하지 않고 도전하는 자세가 가장 중요해요. 조금만 더 힘내면 분명 멋진 결과가 기다리고 있을 거예요! 🌈"}
+              {pct===100?"파닉스 전 과정을 완주한 것은 정말 대단한 성취입니다! 이 기초를 바탕으로 영어 실력이 더욱 빛날 거예요. 🌟":"매일 조금씩 꾸준히 연습하는 모습이 정말 훌륭합니다! 포기하지 않고 도전하는 자세가 가장 중요해요. 🌈"}
             </div>
           </div>
-
-          {/* 푸터 */}
           <div style={{textAlign:"center",borderTop:"1px solid #f0f0f0",paddingTop:20,color:"#aaa",fontSize:12}}>
-            와와학습코칭센터 Phonics Home Training System<br/>
-            본 보고서는 {today}에 자동 생성되었습니다.
+            와와학습코칭센터 Phonics Home Training System<br/>본 보고서는 {today}에 자동 생성되었습니다.
           </div>
         </div>
       </div>
-
-      {/* 버튼 */}
       <div style={{maxWidth:680,margin:"16px auto",display:"flex",gap:10}} className="no-print">
         <button onClick={()=>{
           const el=document.getElementById("report");
           html2canvas(el,{scale:2,useCORS:true,backgroundColor:"#ffffff"}).then(canvas=>{
             const link=document.createElement("a");
             link.download=`${student}_파닉스보고서.png`;
-            link.href=canvas.toDataURL("image/png");
-            link.click();
+            link.href=canvas.toDataURL("image/png");link.click();
           });
         }} style={{flex:1,padding:14,borderRadius:12,background:"#2E7D32",color:"white",border:"none",fontSize:14,fontWeight:600}}>🖼️ 이미지로 저장</button>
         <button onClick={()=>window.print()} style={{flex:1,padding:14,borderRadius:12,background:C.primary,color:"white",border:"none",fontSize:14,fontWeight:600}}>🖨️ 인쇄 / PDF 저장</button>
@@ -322,7 +323,6 @@ function ParentReport({student, studentData, onClose}){
   );
 }
 
-// ── 선생님 대시보드 ──
 function TeacherDashboard({onBack}){
   const [allData,setAllData]=useState(null);
   const [loading,setLoading]=useState(true);
@@ -331,12 +331,8 @@ function TeacherDashboard({onBack}){
   const [showReport,setShowReport]=useState(false);
   const [comments,setComments]=useState({});
   const [savingComment,setSavingComment]=useState(null);
-  const [analyzing,setAnalyzing]=useState(null);
-  const [analysisResult,setAnalysisResult]=useState({});
 
-  useEffect(()=>{
-    window._fbWatch("students",(data)=>{setAllData(data||{});setLoading(false);});
-  },[]);
+  useEffect(()=>{window._fbWatch("students",(data)=>{setAllData(data||{});setLoading(false);});;},[]);
 
   function getStudentDone(n){return allData?.[n]?.done||{};}
   function getStudentComments(n){return allData?.[n]?.comments||{};}
@@ -349,30 +345,11 @@ function TeacherDashboard({onBack}){
     setTimeout(()=>setSavingComment(null),1000);
   }
 
-  function startAnalysis(task){
-    setAnalyzing(task.id);
-    analyzeAccuracy(task.words,(result,err)=>{
-      setAnalyzing(null);
-      if(err){alert(err);return;}
-      setAnalysisResult(p=>({...p,[task.id]:result}));
-    });
-  }
-
-  if(loading)return(
-    <div style={{minHeight:"100vh"}}><Logo/>
-      <div style={{textAlign:"center",padding:60,color:"#888",fontSize:15}}>학생 데이터 불러오는 중...</div>
-    </div>
-  );
+  if(loading)return(<div style={{minHeight:"100vh"}}><Logo/><div style={{textAlign:"center",padding:60,color:"#888",fontSize:15}}>학생 데이터 불러오는 중...</div></div>);
 
   const students=Object.keys(allData).sort();
+  if(showReport&&selStudent)return(<ParentReport student={selStudent} studentData={allData[selStudent]} onClose={()=>setShowReport(false)}/>);
 
-  if(showReport&&selStudent){
-    return(
-      <ParentReport student={selStudent} studentData={allData[selStudent]} onClose={()=>setShowReport(false)}/>
-    );
-  }
-
-  // 학생 상세
   if(selStudent){
     const done=getStudentDone(selStudent);
     const savedComments=getStudentComments(selStudent);
@@ -380,13 +357,11 @@ function TeacherDashboard({onBack}){
     const total=TASKS.length;
     const doneCount=countDone(selStudent);
     const filtered=filterStage===0?TASKS:TASKS.filter(t=>t.stage===filterStage);
-
     return(
       <div style={{minHeight:"100vh",paddingBottom:40}}>
         <Logo/>
         <div style={{maxWidth:600,margin:"0 auto",padding:"0 16px"}}>
-          <button onClick={()=>{setSelStudent(null);setComments({});setAnalysisResult({});}} style={{marginBottom:14,padding:"8px 16px",borderRadius:10,background:"white",color:"#666",border:"1px solid #e0e0e0",fontSize:13}}>← 전체 학생</button>
-
+          <button onClick={()=>{setSelStudent(null);setComments({});}} style={{marginBottom:14,padding:"8px 16px",borderRadius:10,background:"white",color:"#666",border:"1px solid #e0e0e0",fontSize:13}}>← 전체 학생</button>
           <div style={{background:"white",borderRadius:20,padding:20,marginBottom:14,boxShadow:"0 2px 16px rgba(0,0,0,0.06)"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
               <div>
@@ -400,29 +375,20 @@ function TeacherDashboard({onBack}){
             <div style={{height:8,borderRadius:4,background:"#f0f0f0",overflow:"hidden",marginBottom:14}}>
               <div style={{height:"100%",borderRadius:4,background:doneCount===total?"#4CAF50":C.primary,width:`${(doneCount/total)*100}%`}}/>
             </div>
-            <button onClick={()=>setShowReport(true)}
-              style={{width:"100%",padding:"12px",borderRadius:12,background:C.primary,color:"white",border:"none",fontSize:14,fontWeight:700,letterSpacing:0.5}}>
-              📄 학부모 보고서 출력하기
-            </button>
+            <button onClick={()=>setShowReport(true)} style={{width:"100%",padding:"12px",borderRadius:12,background:C.primary,color:"white",border:"none",fontSize:14,fontWeight:700}}>📄 학부모 보고서 출력하기</button>
           </div>
-
-          {/* Stage 필터 */}
           <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:14}}>
             <button onClick={()=>setFilterStage(0)} style={{padding:"6px 12px",borderRadius:20,background:filterStage===0?C.primary:"white",color:filterStage===0?"white":"#666",border:`1px solid ${filterStage===0?C.primary:"#e0e0e0"}`,fontSize:12,fontWeight:600}}>전체</button>
             {STAGES.map(st=>(
               <button key={st.id} onClick={()=>setFilterStage(st.id)} style={{padding:"6px 12px",borderRadius:20,background:filterStage===st.id?st.color:st.bg,color:filterStage===st.id?"white":st.color,border:`1px solid ${st.color}`,fontSize:12,fontWeight:600}}>{st.name}</button>
             ))}
           </div>
-
-          {/* 과제 목록 */}
           {filtered.map(task=>{
             const d=!!done[`task_${task.id}`];
             const st=STAGES.find(s=>s.id===task.stage);
             const audioURL=audioData[`task_${task.id}`];
             const savedCmt=savedComments[`task_${task.id}`]||"";
             const localCmt=comments[task.id]??savedCmt;
-            const ar=analysisResult[task.id];
-
             return(
               <div key={task.id} style={{background:"white",borderRadius:16,padding:18,marginBottom:12,boxShadow:"0 1px 10px rgba(0,0,0,0.06)",border:`1.5px solid ${d?"#4CAF50":"#f0f0f0"}`}}>
                 <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
@@ -435,23 +401,16 @@ function TeacherDashboard({onBack}){
                   </div>
                   <div style={{fontSize:13,fontWeight:700,color:d?"#4CAF50":"#ccc"}}>{d?"완료":"미완료"}</div>
                 </div>
-
-                {/* 음성 듣기 */}
                 {audioURL&&(
                   <div style={{background:"#f8f8f8",borderRadius:12,padding:12,marginBottom:10}}>
                     <div style={{fontSize:12,fontWeight:600,color:"#555",marginBottom:6}}>🎵 학생 제출 음성</div>
                     <audio src={audioURL} controls style={{width:"100%",height:36}}/>
                   </div>
                 )}
-
-
-
-                {/* 선생님 코멘트 */}
                 <div>
                   <div style={{fontSize:12,color:"#888",marginBottom:4}}>📝 선생님 코멘트</div>
                   <div style={{display:"flex",gap:6}}>
-                    <textarea value={localCmt}
-                      onChange={e=>setComments(p=>({...p,[task.id]:e.target.value}))}
+                    <textarea value={localCmt} onChange={e=>setComments(p=>({...p,[task.id]:e.target.value}))}
                       placeholder="이 과제에 대한 피드백을 입력하세요..."
                       style={{flex:1,padding:"8px 12px",borderRadius:10,border:"1px solid #e0e0e0",fontSize:12,resize:"none",height:56,fontFamily:"inherit"}}/>
                     <button onClick={()=>saveComment(selStudent,task.id,localCmt)}
@@ -468,7 +427,6 @@ function TeacherDashboard({onBack}){
     );
   }
 
-  // 전체 학생 목록
   return(
     <div style={{minHeight:"100vh",paddingBottom:40}}>
       <Logo/>
@@ -478,10 +436,9 @@ function TeacherDashboard({onBack}){
           <div style={{fontSize:18,fontWeight:700}}>👩‍🏫 선생님 대시보드</div>
           <div style={{fontSize:13,opacity:0.85,marginTop:4}}>학생 {students.length}명 · 전체 과제 {TASKS.length}개</div>
         </div>
-        {students.length===0?(
-          <div style={{textAlign:"center",padding:40,color:"#aaa",background:"white",borderRadius:16}}>아직 접속한 학생이 없어요</div>
-        ):(
-          students.map(sName=>{
+        {students.length===0
+          ?<div style={{textAlign:"center",padding:40,color:"#aaa",background:"white",borderRadius:16}}>아직 접속한 학생이 없어요</div>
+          :students.map(sName=>{
             const d=countDone(sName),pct=Math.round(d/TASKS.length*100);
             return(
               <div key={sName} onClick={()=>setSelStudent(sName)}
@@ -516,13 +473,12 @@ function TeacherDashboard({onBack}){
               </div>
             );
           })
-        )}
+        }
       </div>
     </div>
   );
 }
 
-// ── 메인 앱 ──
 function App(){
   const [screen,setScreen]=useState("login");
   const [name,setName]=useState("");
@@ -574,52 +530,32 @@ function App(){
       mr.ondataavailable=e=>chunksRef.current.push(e.data);
       mr.onstop=()=>{
         const blob=new Blob(chunksRef.current,{type:"audio/webm"});
-        setAudioBlob(blob);
-        setAudioURL(URL.createObjectURL(blob));
+        setAudioBlob(blob);setAudioURL(URL.createObjectURL(blob));
         stream.getTracks().forEach(t=>t.stop());
       };
       mr.start();setRecording(true);
     }catch{alert("마이크 권한을 허용해 주세요.");}
   }
   function stopRec(){mediaRef.current?.stop();setRecording(false);}
-
-  function handleFile(e){
-    const f=e.target.files[0];if(!f)return;
-    setAudioBlob(f);
-    setAudioURL(URL.createObjectURL(f));
-  }
+  function handleFile(e){const f=e.target.files[0];if(!f)return;setAudioBlob(f);setAudioURL(URL.createObjectURL(f));}
 
   async function submit(){
     setUploading(true);
     if(audioBlob){
-      try{
-        // base64로 변환해서 Firebase Realtime DB에 저장 (Storage CORS 우회)
-        const reader = new FileReader();
-        reader.readAsDataURL(audioBlob);
-        reader.onloadend = async ()=>{
-          try{
-            const base64 = reader.result;
-            await window._fbSet(`students/${student}/audio/task_${selTask.id}`, base64);
-          }catch(e){console.error("audio save error",e);}
-          const nd={...done,[`task_${selTask.id}`]:true};
-          await saveDone(student,nd);
-          setUploading(false);
-          setCongrats(true);setConfetti(true);
-          setTimeout(()=>setConfetti(false),3000);
-        };
-      }catch(e){
-        console.error("upload error",e);
+      const reader=new FileReader();
+      reader.readAsDataURL(audioBlob);
+      reader.onloadend=async()=>{
+        try{await window._fbSet(`students/${student}/audio/task_${selTask.id}`,reader.result);}
+        catch(e){console.error("audio save error",e);}
         const nd={...done,[`task_${selTask.id}`]:true};
         await saveDone(student,nd);
-        setUploading(false);
-        setCongrats(true);setConfetti(true);
+        setUploading(false);setCongrats(true);setConfetti(true);
         setTimeout(()=>setConfetti(false),3000);
-      }
-    } else {
+      };
+    }else{
       const nd={...done,[`task_${selTask.id}`]:true};
       await saveDone(student,nd);
-      setUploading(false);
-      setCongrats(true);setConfetti(true);
+      setUploading(false);setCongrats(true);setConfetti(true);
       setTimeout(()=>setConfetti(false),3000);
     }
   }
@@ -739,6 +675,8 @@ function App(){
 
   if(screen==="task"&&selTask){
     const st=STAGES.find(s=>s.id===selTask.stage);
+    // Stage 11 문장 읽기는 문장이 길어서 버튼 레이아웃을 세로로
+    const isSentence=selTask.stage===11;
     return(
       <div style={{minHeight:"100vh",paddingBottom:40}}>
         <Confetti show={confetti}/>
@@ -755,23 +693,23 @@ function App(){
           </div>
 
           <div style={{background:"white",borderRadius:20,padding:22,boxShadow:"0 2px 16px rgba(0,0,0,0.06)",marginBottom:14}}>
-            <div style={{fontSize:15,fontWeight:600,color:"#333",marginBottom:4}}>🔊 원어민 발음 듣기</div>
-            <div style={{fontSize:12,color:"#888",marginBottom:12}}>단어 클릭 → 발음 듣기 · 뜻 보기 클릭 → 한국어 뜻</div>
+            <div style={{fontSize:15,fontWeight:600,color:"#333",marginBottom:4}}>🔊 {isSentence?"문장 듣기":"원어민 발음 듣기"}</div>
+            <div style={{fontSize:12,color:"#888",marginBottom:12}}>{isSentence?"문장을 클릭하면 TTS로 들을 수 있어요":"단어 클릭 → 발음 듣기 · 뜻 보기 클릭 → 한국어 뜻"}</div>
             <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:14}}>
               {selTask.words.map((item,i)=>(
-                <div key={i} style={{display:"flex",alignItems:"center",gap:8}}>
-                  <button onClick={()=>{setPlayWord(item.w);spk(item.w);setTimeout(()=>setPlayWord(null),1200);}}
-                    style={{flex:1,padding:"10px 16px",borderRadius:14,background:playWord===item.w?st.color:st.bg,color:playWord===item.w?"white":st.color,border:`1.5px solid ${st.color}`,fontSize:16,fontWeight:700,textAlign:"left",display:"flex",alignItems:"center",gap:8,transition:"all 0.2s"}}>
-                    <span>{item.w}</span><span style={{fontSize:12,opacity:0.7}}>{playWord===item.w?"🔉":"🔊"}</span>
+                <div key={i} style={{display:"flex",flexDirection:isSentence?"column":"row",alignItems:isSentence?"stretch":"center",gap:8}}>
+                  <button onClick={()=>{setPlayWord(item.w);spk(item.w,isSentence?0.75:0.85);setTimeout(()=>setPlayWord(null),2000);}}
+                    style={{flex:1,padding:isSentence?"12px 16px":"10px 16px",borderRadius:14,background:playWord===item.w?st.color:st.bg,color:playWord===item.w?"white":st.color,border:`1.5px solid ${st.color}`,fontSize:isSentence?14:16,fontWeight:isSentence?500:700,textAlign:"left",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,transition:"all 0.2s",lineHeight:1.5}}>
+                    <span>{item.w}</span><span style={{fontSize:12,opacity:0.7,flexShrink:0}}>{playWord===item.w?"🔉":"🔊"}</span>
                   </button>
                   <button onClick={()=>setShowMeaning(p=>({...p,[item.w]:!p[item.w]}))}
-                    style={{padding:"10px 14px",borderRadius:14,background:showMeaning[item.w]?"#FFF9C4":"#f5f5f5",color:showMeaning[item.w]?"#795548":"#666",border:"1.5px solid #e0e0e0",fontSize:13,fontWeight:600,minWidth:60,whiteSpace:"nowrap"}}>
+                    style={{padding:isSentence?"8px 14px":"10px 14px",borderRadius:14,background:showMeaning[item.w]?"#FFF9C4":"#f5f5f5",color:showMeaning[item.w]?"#795548":"#666",border:"1.5px solid #e0e0e0",fontSize:13,fontWeight:600,textAlign:"left"}}>
                     {showMeaning[item.w]?item.m:"뜻 보기"}
                   </button>
                 </div>
               ))}
             </div>
-            <button onClick={()=>spkAll(selTask.words)} style={{padding:"10px 20px",borderRadius:12,background:st.color,color:"white",border:"none",fontSize:13,fontWeight:600,width:"100%"}}>▶ 전체 단어 순서대로 듣기</button>
+            <button onClick={()=>spkAll(selTask.words)} style={{padding:"10px 20px",borderRadius:12,background:st.color,color:"white",border:"none",fontSize:13,fontWeight:600,width:"100%"}}>▶ {isSentence?"전체 문장 순서대로 듣기":"전체 단어 순서대로 듣기"}</button>
           </div>
 
           <div style={{background:"white",borderRadius:20,padding:22,boxShadow:"0 2px 16px rgba(0,0,0,0.06)",marginBottom:14}}>
@@ -792,13 +730,12 @@ function App(){
               </div>
             )}
             <div style={{marginTop:16}}>
-              {/* 완료 여부 상관없이 음성 있으면 항상 제출 가능 */}
               {audioURL
                 ?<button onClick={submit} disabled={uploading}
                     style={{padding:14,borderRadius:12,background:!uploading?C.primary:"#ccc",color:"white",border:"none",fontSize:15,fontWeight:700,width:"100%",cursor:!uploading?"pointer":"not-allowed"}}>
                     {uploading?"📤 업로드 중...":"✅ 숙제 제출하기!"}
                   </button>
-                : isDone(selTask.id)
+                :isDone(selTask.id)
                   ?<div style={{textAlign:"center",padding:14,background:"#e8f5e9",borderRadius:12,color:"#2e7d32",fontWeight:600,fontSize:15}}>✅ 완료! 새 음성을 녹음하거나 업로드해서 다시 제출할 수 있어요</div>
                   :<div style={{textAlign:"center",padding:14,background:"#f5f5f5",borderRadius:12,color:"#888",fontSize:14}}>음성을 먼저 녹음하거나 업로드해주세요</div>
               }
