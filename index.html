@@ -117,7 +117,7 @@ audio{width:100%}
 <div id="p-teacher" class="page">
   <div id="logo-teacher" class="logo"></div>
   <div class="wrap">
-    <button class="back-btn" data-to="login" style="margin-bottom:12px;padding:8px 16px;border-radius:10px;background:white;color:#666;border:1px solid #e0e0e0;font-size:13px">← 로그인으로</button>
+    <button onclick="show('login')" style="margin-bottom:12px;padding:8px 16px;border-radius:10px;background:white;color:#666;border:1px solid #e0e0e0;font-size:13px">← 로그인으로</button>
     <div id="teacher-content"></div>
   </div>
 </div>
@@ -497,7 +497,7 @@ function renderTeacherDetail(sName,sData){
   const pct=Math.round(cnt/TASKS.length*100);
   const tc=document.getElementById("teacher-content");
   tc.innerHTML=`
-    <button class="back-to-list" onclick="renderTeacher()" style="margin-bottom:12px;padding:8px 16px;border-radius:10px;background:white;color:#666;border:1px solid #e0e0e0;font-size:13px">← 전체 학생</button>
+    <button onclick="renderTeacher()" style="margin-bottom:12px;padding:8px 16px;border-radius:10px;background:white;color:#666;border:1px solid #e0e0e0;font-size:13px">← 전체 학생</button>
     <div class="card" style="margin-bottom:14px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
         <div>
