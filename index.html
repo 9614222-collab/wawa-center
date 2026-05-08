@@ -454,6 +454,10 @@ function renderTeacher(){
   const tc=document.getElementById("teacher-content");
   tc.innerHTML=`<div style="background:${B().primary};border-radius:20px;padding:20px;margin-bottom:16px;color:white"><div style="font-size:18px;font-weight:700">👩‍🏫 선생님 대시보드</div><div style="font-size:13px;opacity:.85;margin-top:4px">불러오는 중...</div></div>`;
 
+  // 로그인으로 버튼 숨기기
+  const backLoginBtn=document.querySelector("#p-teacher .back-btn[data-to='login']");
+  if(backLoginBtn)backLoginBtn.style.display="none";
+
   const unsub=window._fbWatch("students",allData=>{
     // 상세 화면 중이면 목록 재렌더 안 함
     if(!document.getElementById("student-list")&&document.getElementById("teacher-content").querySelector(".back-to-list"))return;
@@ -473,9 +477,11 @@ function renderTeacher(){
         return `<div style="background:${st.bg};border-radius:8px;padding:3px 8px;display:flex;align-items:center;gap:3px"><span style="font-size:10px;color:${st.color};font-weight:600">${st.name.replace("Stage ","S")}</span><span style="font-size:10px;color:${st.color}">${dn}/${tot}</span></div>`;
       }).join("");
       el.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div><div style="font-size:16px;font-weight:700;color:#333">${sName}</div><div style="font-size:12px;color:#888;margin-top:2px">${TASKS.length}개 중 ${cnt}개 완료</div></div><div style="display:flex;align-items:center;gap:8px"><div style="width:44px;height:44px;border-radius:50%;background:${pct===100?"#E8F5E9":"#f5e8e0"};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:${pct===100?"#2E7D32":B().primary}">${pct}%</div><span style="color:#ccc;font-size:20px">›</span></div></div><div class="progress" style="margin-bottom:8px"><div class="progress-bar" style="background:${pct===100?"#4CAF50":B().primary};width:${pct}%"></div></div><div style="display:flex;gap:4px;flex-wrap:wrap">${stageBadges}</div>`;
-      el.onclick=()=>{
-        if(teacherUnwatch){teacherUnwatch();teacherUnwatch=null;} // 목록 watch 중지
-        renderTeacherDetail(sName,allData[sName]);
+      el.onclick=async()=>{
+        if(teacherUnwatch){teacherUnwatch();teacherUnwatch=null;}
+        // Firebase에서 최신 데이터 직접 조회
+        const fresh=await fbGet(`students/${sName}`);
+        renderTeacherDetail(sName,fresh||allData[sName]);
       };
       sl.appendChild(el);
     });
@@ -484,39 +490,70 @@ function renderTeacher(){
 }
 
 function renderTeacherDetail(sName,sData){
-  const d2=sData?.done||{};const cmts=sData?.comments||{};const audio=sData?.audio||{};
+  const d2=sData?.done||{};
+  const cmts=sData?.comments||{};
+  const audio=sData?.audio||{};
   const cnt=Object.values(d2).filter(Boolean).length;
   const pct=Math.round(cnt/TASKS.length*100);
   const tc=document.getElementById("teacher-content");
-  tc.innerHTML=`<button class="back-to-list" onclick="renderTeacher()" style="margin-bottom:12px;padding:8px 16px;border-radius:10px;background:white;color:#666;border:1px solid #e0e0e0;font-size:13px">← 전체 학생</button>
-  <div class="card" style="margin-bottom:14px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <div><div style="font-size:20px;font-weight:700;color:#333">${sName} 학생</div><div style="font-size:13px;color:#888;margin-top:2px">${TASKS.length}개 중 ${cnt}개 완료 · ${pct}%</div></div>
-      <div style="width:44px;height:44px;border-radius:50%;background:${pct===100?"#E8F5E9":"#f5e8e0"};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:${pct===100?"#2E7D32":B().primary}">${pct}%</div>
-    </div>
-    <div class="progress"><div class="progress-bar" style="background:${pct===100?"#4CAF50":B().primary};width:${pct}%"></div></div>
-  </div>
-  <div id="teacher-tasks"></div>`;
-  const tt=document.getElementById("teacher-tasks");
+  tc.innerHTML=`
+    <button class="back-to-list" onclick="renderTeacher()" style="margin-bottom:12px;padding:8px 16px;border-radius:10px;background:white;color:#666;border:1px solid #e0e0e0;font-size:13px">← 전체 학생</button>
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div>
+          <div style="font-size:20px;font-weight:700;color:#333">${sName} 학생</div>
+          <div style="font-size:13px;color:#888;margin-top:2px">${TASKS.length}개 중 ${cnt}개 완료 · ${pct}%</div>
+        </div>
+        <div style="width:44px;height:44px;border-radius:50%;background:${pct===100?"#E8F5E9":"#f5e8e0"};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:${pct===100?"#2E7D32":B().primary}">${pct}%</div>
+      </div>
+      <div class="progress"><div class="progress-bar" style="background:${pct===100?"#4CAF50":B().primary};width:${pct}%"></div></div>
+    </div>`;
+
+  // 과제 카드 하나씩 추가
   TASKS.forEach(task=>{
-    const isDn=!!d2[`task_${task.id}`];const st=stOf(task.stage);
-    const audioURL2=audio[`task_${task.id}`];const savedCmt=cmts[`task_${task.id}`]||"";
-    const el=document.createElement("div");el.className="card";el.style.border=`1.5px solid ${isDn?"#4CAF50":"#f0f0f0"}`;
-    el.innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-      <div style="width:32px;height:32px;border-radius:8px;background:${isDn?"#E8F5E9":st.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0">${isDn?"✅":"⬜"}</div>
-      <div style="flex:1"><div style="font-size:14px;font-weight:600;color:#333">${task.title}</div><span class="badge" style="background:${st.bg};color:${st.color}">${st.name}</span></div>
-      <div style="font-size:13px;font-weight:700;color:${isDn?"#4CAF50":"#ccc"}">${isDn?"완료":"미완료"}</div>
-    </div>
-    ${audioURL2?`<div style="background:#f8f8f8;border-radius:12px;padding:12px;margin-bottom:10px"><div style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px">🎵 학생 제출 음성</div><audio src="${audioURL2}" controls style="width:100%;height:36px"></audio></div>`:""}
-    <div><div style="font-size:12px;color:#888;margin-bottom:4px">📝 선생님 코멘트</div>
-    <div style="display:flex;gap:6px"><textarea style="flex:1;padding:8px 12px;border-radius:10px;border:1px solid #e0e0e0;font-size:12px;resize:none;height:56px" placeholder="피드백을 입력하세요...">${savedCmt}</textarea>
-    <button onclick="saveComment('${sName}',${task.id},this)" style="padding:8px 14px;border-radius:10px;background:${B().primary};color:white;font-size:12px;font-weight:600;min-width:50px">저장</button></div></div>`;
-    tt.appendChild(el);
+    const isDn=!!d2[`task_${task.id}`];
+    const st=stOf(task.stage);
+    const audioURL2=audio[`task_${task.id}`]||"";
+    const savedCmt=cmts[`task_${task.id}`]||"";
+
+    const el=document.createElement("div");
+    el.className="card";
+    el.style.border=`1.5px solid ${isDn?"#4CAF50":"#f0f0f0"}`;
+    el.style.marginBottom="12px";
+
+    let audioHtml="";
+    if(audioURL2){
+      audioHtml=`<div style="background:#f8f8f8;border-radius:12px;padding:12px;margin-bottom:10px">
+        <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px">🎵 학생 제출 음성</div>
+        <audio src="${audioURL2}" controls style="width:100%;height:36px"></audio>
+      </div>`;
+    }
+
+    el.innerHTML=`
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="width:32px;height:32px;border-radius:8px;background:${isDn?"#E8F5E9":st.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0">${isDn?"✅":"⬜"}</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600;color:#333">${task.title}</div>
+          <span class="badge" style="background:${st.bg};color:${st.color}">${st.name}</span>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:${isDn?"#4CAF50":"#ccc"}">${isDn?"완료":"미완료"}</div>
+      </div>
+      ${audioHtml}
+      <div>
+        <div style="font-size:12px;color:#888;margin-bottom:4px">📝 선생님 코멘트</div>
+        <div style="display:flex;gap:6px">
+          <textarea id="cmt-${task.id}" style="flex:1;padding:8px 12px;border-radius:10px;border:1px solid #e0e0e0;font-size:12px;resize:none;height:56px" placeholder="피드백을 입력하세요...">${savedCmt}</textarea>
+          <button onclick="saveComment('${sName}',${task.id})" style="padding:8px 14px;border-radius:10px;background:${B().primary};color:white;font-size:12px;font-weight:600;min-width:50px;align-self:flex-end" id="save-btn-${task.id}">저장</button>
+        </div>
+      </div>`;
+    tc.appendChild(el);
   });
 }
 
-async function saveComment(sName,taskId,btn){
-  const ta=btn.previousElementSibling;
+async function saveComment(sName,taskId){
+  const ta=document.getElementById(`cmt-${taskId}`);
+  const btn=document.getElementById(`save-btn-${taskId}`);
+  if(!ta||!btn)return;
   btn.textContent="...";btn.disabled=true;
   await fbSet(`students/${sName}/comments/task_${taskId}`,ta.value);
   btn.textContent="✓";btn.style.background="#4CAF50";
