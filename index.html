@@ -289,7 +289,7 @@ async function doLogin(){
 }
 
 function doTeacher(){
-  if(document.getElementById("inp-pw").value===TEACHER_PW){renderTeacher(null);show("teacher");}
+  if(document.getElementById("inp-pw").value===TEACHER_PW){renderTeacher();show("teacher");}
   else{const e=document.getElementById("pw-err");e.style.display="block";setTimeout(()=>e.style.display="none",1500);}
 }
 
@@ -445,30 +445,42 @@ async function markDone(){
 }
 
 // ── 선생님 대시보드 ──
-function renderTeacher(selStudent){
-  window._fbWatch("students",allData=>{
+let teacherUnwatch=null; // watch 해제용
+
+function renderTeacher(){
+  // 기존 watch 해제
+  if(teacherUnwatch){teacherUnwatch();teacherUnwatch=null;}
+
+  const tc=document.getElementById("teacher-content");
+  tc.innerHTML=`<div style="background:${B().primary};border-radius:20px;padding:20px;margin-bottom:16px;color:white"><div style="font-size:18px;font-weight:700">👩‍🏫 선생님 대시보드</div><div style="font-size:13px;opacity:.85;margin-top:4px">불러오는 중...</div></div>`;
+
+  const unsub=window._fbWatch("students",allData=>{
+    // 상세 화면 중이면 목록 재렌더 안 함
+    if(!document.getElementById("student-list")&&document.getElementById("teacher-content").querySelector(".back-to-list"))return;
+
     const students=Object.keys(allData||{}).sort();
-    const tc=document.getElementById("teacher-content");
-    if(!selStudent){
-      tc.innerHTML=`<div style="background:${B().primary};border-radius:20px;padding:20px;margin-bottom:16px;color:white"><div style="font-size:18px;font-weight:700">👩‍🏫 선생님 대시보드</div><div style="font-size:13px;opacity:.85;margin-top:4px">학생 ${students.length}명 · 전체 과제 ${TASKS.length}개</div></div><div id="student-list"></div>`;
-      const sl=document.getElementById("student-list");
-      if(!students.length){sl.innerHTML=`<div style="text-align:center;padding:40px;color:#aaa;background:white;border-radius:16px">아직 접속한 학생이 없어요</div>`;return;}
-      students.forEach(sName=>{
-        const d2=allData[sName]?.done||{};
-        const cnt=Object.values(d2).filter(Boolean).length;
-        const pct=Math.round(cnt/TASKS.length*100);
-        const el=document.createElement("div");el.className="card";el.style.cursor="pointer";
-        const stageBadges=STAGES.map(st=>{
-          const tot=TASKS.filter(t=>t.stage===st.id).length;
-          const dn=TASKS.filter(t=>t.stage===st.id&&d2[`task_${t.id}`]).length;
-          return `<div style="background:${st.bg};border-radius:8px;padding:3px 8px;display:flex;align-items:center;gap:3px"><span style="font-size:10px;color:${st.color};font-weight:600">${st.name.replace("Stage ","S")}</span><span style="font-size:10px;color:${st.color}">${dn}/${tot}</span></div>`;
-        }).join("");
-        el.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div><div style="font-size:16px;font-weight:700;color:#333">${sName}</div><div style="font-size:12px;color:#888;margin-top:2px">${TASKS.length}개 중 ${cnt}개 완료</div></div><div style="display:flex;align-items:center;gap:8px"><div style="width:44px;height:44px;border-radius:50%;background:${pct===100?"#E8F5E9":"#f5e8e0"};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:${pct===100?"#2E7D32":B().primary}">${pct}%</div><span style="color:#ccc;font-size:20px">›</span></div></div><div class="progress" style="margin-bottom:8px"><div class="progress-bar" style="background:${pct===100?"#4CAF50":B().primary};width:${pct}%"></div></div><div style="display:flex;gap:4px;flex-wrap:wrap">${stageBadges}</div>`;
-        el.onclick=()=>renderTeacherDetail(sName,allData[sName]);
-        sl.appendChild(el);
-      });
-    }
+    tc.innerHTML=`<div style="background:${B().primary};border-radius:20px;padding:20px;margin-bottom:16px;color:white"><div style="font-size:18px;font-weight:700">👩‍🏫 선생님 대시보드</div><div style="font-size:13px;opacity:.85;margin-top:4px">학생 ${students.length}명 · 전체 과제 ${TASKS.length}개</div></div><div id="student-list"></div>`;
+    const sl=document.getElementById("student-list");
+    if(!students.length){sl.innerHTML=`<div style="text-align:center;padding:40px;color:#aaa;background:white;border-radius:16px">아직 접속한 학생이 없어요</div>`;return;}
+    students.forEach(sName=>{
+      const d2=allData[sName]?.done||{};
+      const cnt=Object.values(d2).filter(Boolean).length;
+      const pct=Math.round(cnt/TASKS.length*100);
+      const el=document.createElement("div");el.className="card";el.style.cursor="pointer";
+      const stageBadges=STAGES.map(st=>{
+        const tot=TASKS.filter(t=>t.stage===st.id).length;
+        const dn=TASKS.filter(t=>t.stage===st.id&&d2[`task_${t.id}`]).length;
+        return `<div style="background:${st.bg};border-radius:8px;padding:3px 8px;display:flex;align-items:center;gap:3px"><span style="font-size:10px;color:${st.color};font-weight:600">${st.name.replace("Stage ","S")}</span><span style="font-size:10px;color:${st.color}">${dn}/${tot}</span></div>`;
+      }).join("");
+      el.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div><div style="font-size:16px;font-weight:700;color:#333">${sName}</div><div style="font-size:12px;color:#888;margin-top:2px">${TASKS.length}개 중 ${cnt}개 완료</div></div><div style="display:flex;align-items:center;gap:8px"><div style="width:44px;height:44px;border-radius:50%;background:${pct===100?"#E8F5E9":"#f5e8e0"};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:${pct===100?"#2E7D32":B().primary}">${pct}%</div><span style="color:#ccc;font-size:20px">›</span></div></div><div class="progress" style="margin-bottom:8px"><div class="progress-bar" style="background:${pct===100?"#4CAF50":B().primary};width:${pct}%"></div></div><div style="display:flex;gap:4px;flex-wrap:wrap">${stageBadges}</div>`;
+      el.onclick=()=>{
+        if(teacherUnwatch){teacherUnwatch();teacherUnwatch=null;} // 목록 watch 중지
+        renderTeacherDetail(sName,allData[sName]);
+      };
+      sl.appendChild(el);
+    });
   });
+  teacherUnwatch=unsub;
 }
 
 function renderTeacherDetail(sName,sData){
@@ -476,7 +488,7 @@ function renderTeacherDetail(sName,sData){
   const cnt=Object.values(d2).filter(Boolean).length;
   const pct=Math.round(cnt/TASKS.length*100);
   const tc=document.getElementById("teacher-content");
-  tc.innerHTML=`<button onclick="renderTeacher(null)" style="margin-bottom:12px;padding:8px 16px;border-radius:10px;background:white;color:#666;border:1px solid #e0e0e0;font-size:13px">← 전체 학생</button>
+  tc.innerHTML=`<button class="back-to-list" onclick="renderTeacher()" style="margin-bottom:12px;padding:8px 16px;border-radius:10px;background:white;color:#666;border:1px solid #e0e0e0;font-size:13px">← 전체 학생</button>
   <div class="card" style="margin-bottom:14px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <div><div style="font-size:20px;font-weight:700;color:#333">${sName} 학생</div><div style="font-size:13px;color:#888;margin-top:2px">${TASKS.length}개 중 ${cnt}개 완료 · ${pct}%</div></div>
